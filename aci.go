@@ -45,7 +45,7 @@ type Req struct {
 }
 
 // Res : API request result
-type Res gjson.Result
+type Res = gjson.Result
 
 // NewClient : Create new ACI client struct
 func NewClient(config Config) Client {
