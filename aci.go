@@ -75,6 +75,11 @@ func (c Client) newURL(req Req) string {
 	return result
 }
 
+// GetURI : Shortcut for GET request with no query parameters
+func (c *Client) GetURI(s string) (Res, error) {
+	return c.Get(Req{URI: s})
+}
+
 // Get : APIC get request
 func (c *Client) Get(req Req) (Res, error) {
 	url := c.newURL(req)
