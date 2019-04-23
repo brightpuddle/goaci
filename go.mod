@@ -1,4 +1,4 @@
-module aci
+module github.com/brightpuddle/go-aci
 
 go 1.12
 
