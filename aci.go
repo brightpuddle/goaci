@@ -1,6 +1,7 @@
 package aci
 
 import (
+	"bufio"
 	"crypto/tls"
 	"errors"
 	"fmt"
@@ -8,18 +9,22 @@ import (
 	"log"
 	"net/http"
 	"net/http/cookiejar"
+	"os"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/tidwall/gjson"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 // Config : APIC configuration object from CLI, config file, etc
 type Config struct {
-	IP       string
-	Password string
-	Username string
-	Logger   Logger
+	IP             string
+	Password       string
+	Username       string
+	Logger         Logger
+	RequestTimeout time.Duration
 }
 
 // Logger : common logging interface for logrus, etc
@@ -47,8 +52,34 @@ type Req struct {
 // Res : API request result
 type Res = gjson.Result
 
+func input(prompt string) string {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Printf("%s ", prompt)
+	input, _ := reader.ReadString('\n')
+	return strings.Trim(input, "\r\n")
+}
+
+func (c *Config) validate() {
+	if c.IP == "" {
+		c.IP = input("APIC IP:")
+	}
+	if c.Username == "" {
+		c.Username = input("Username:")
+	}
+	if c.Password == "" {
+		fmt.Print("Password: ")
+		pwd, _ := terminal.ReadPassword(int(syscall.Stdin))
+		c.Password = string(pwd)
+	}
+	if c.RequestTimeout == 0 {
+		c.RequestTimeout = 30
+	}
+
+}
+
 // NewClient : Create new ACI client struct
-func NewClient(config Config) Client {
+func NewClient(config Config) *Client {
+	config.validate()
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
 		InsecureSkipVerify: true,
 	}
@@ -57,10 +88,10 @@ func NewClient(config Config) Client {
 		log.Panic(err)
 	}
 	httpClient := http.Client{
-		Timeout: time.Second * 30,
+		Timeout: time.Second * config.RequestTimeout,
 		Jar:     cookieJar,
 	}
-	return Client{
+	return &Client{
 		httpClient: &httpClient,
 		config:     config,
 		log:        config.Logger,
