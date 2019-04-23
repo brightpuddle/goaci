@@ -40,8 +40,8 @@ type Client struct {
 
 // Req : API request
 type Req struct {
-	uri   string
-	query []string
+	URI   string
+	Query []string
 }
 
 // Res : API request result
@@ -68,9 +68,9 @@ func NewClient(config Config) Client {
 }
 
 func (c Client) newURL(req Req) string {
-	result := fmt.Sprintf("https://%s%s.json", c.config.IP, req.uri)
-	if len(req.query) > 0 {
-		return fmt.Sprintf("%s?%s", result, strings.Join(req.query, "&"))
+	result := fmt.Sprintf("https://%s%s.json", c.config.IP, req.URI)
+	if len(req.Query) > 0 {
+		return fmt.Sprintf("%s?%s", result, strings.Join(req.Query, "&"))
 	}
 	return result
 }
@@ -78,7 +78,7 @@ func (c Client) newURL(req Req) string {
 // Get : APIC get request
 func (c *Client) Get(req Req) (Res, error) {
 	url := c.newURL(req)
-	c.log.Debug(fmt.Sprintf("GET request to %s", req.uri))
+	c.log.Debug(fmt.Sprintf("GET request to %s", req.URI))
 	httpRes, err := c.httpClient.Get(url)
 	if err != nil {
 		return Res{}, err
@@ -97,7 +97,7 @@ func (c *Client) Get(req Req) (Res, error) {
 // Login : Login to the APIC
 func (c Client) Login() error {
 	uri := "/api/aaaLogin"
-	url := c.newURL(Req{uri: uri})
+	url := c.newURL(Req{URI: uri})
 	data := fmt.Sprintf(`{"aaaUser":{"attributes":{"name":"%s","pwd":"%s"}}}`,
 		c.config.Username, c.config.Password)
 	c.log.Debug(fmt.Sprintf("GET request to %s", uri))
@@ -123,6 +123,6 @@ func (c Client) Login() error {
 
 // Refresh : Refresh the auth token
 func (c Client) Refresh() error {
-	_, err := c.Get(Req{uri: "/api/aaaRefresh"})
+	_, err := c.Get(Req{URI: "/api/aaaRefresh"})
 	return err
 }
