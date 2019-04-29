@@ -29,17 +29,17 @@ type Config struct {
 
 // Logger : common logging interface for logrus, etc
 type Logger interface {
-	Debug(interface{})
-	Info(interface{})
-	Warn(interface{})
-	Error(interface{})
-	Panic(interface{})
+	Debug(args ...interface{})
+	Info(args ...interface{})
+	Warn(args ...interface{})
+	Error(args ...interface{})
+	Panic(args ...interface{})
 }
 
 // Client : httpClient wrapper
 type Client struct {
 	httpClient *http.Client
-	config     Config
+	cfg        *Config
 	log        Logger
 }
 
@@ -77,9 +77,9 @@ func (c *Config) validate() {
 
 }
 
-// NewClient : Create new ACI client struct
-func NewClient(config Config) *Client {
-	config.validate()
+// NewClientFromCLI : Create new ACI client struct
+func NewClientFromCLI(cfg Config) Client {
+	cfg.validate()
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
 		InsecureSkipVerify: true,
 	}
@@ -88,18 +88,18 @@ func NewClient(config Config) *Client {
 		log.Panic(err)
 	}
 	httpClient := http.Client{
-		Timeout: time.Second * config.RequestTimeout,
+		Timeout: time.Second * cfg.RequestTimeout,
 		Jar:     cookieJar,
 	}
-	return &Client{
+	return Client{
 		httpClient: &httpClient,
-		config:     config,
-		log:        config.Logger,
+		cfg:        &cfg,
+		log:        cfg.Logger,
 	}
 }
 
-func (c Client) newURL(req Req) string {
-	result := fmt.Sprintf("https://%s%s.json", c.config.IP, req.URI)
+func (c *Client) newURL(req Req) string {
+	result := fmt.Sprintf("https://%s%s.json", c.cfg.IP, req.URI)
 	if len(req.Query) > 0 {
 		return fmt.Sprintf("%s?%s", result, strings.Join(req.Query, "&"))
 	}
@@ -131,11 +131,11 @@ func (c *Client) Get(req Req) (Res, error) {
 }
 
 // Login : Login to the APIC
-func (c Client) Login() error {
+func (c *Client) Login() error {
 	uri := "/api/aaaLogin"
 	url := c.newURL(Req{URI: uri})
 	data := fmt.Sprintf(`{"aaaUser":{"attributes":{"name":"%s","pwd":"%s"}}}`,
-		c.config.Username, c.config.Password)
+		c.cfg.Username, c.cfg.Password)
 	c.log.Debug(fmt.Sprintf("GET request to %s", uri))
 	res, err := c.httpClient.Post(url, "json", strings.NewReader(data))
 	if err != nil {
@@ -158,7 +158,7 @@ func (c Client) Login() error {
 }
 
 // Refresh : Refresh the auth token
-func (c Client) Refresh() error {
+func (c *Client) Refresh() error {
 	_, err := c.Get(Req{URI: "/api/aaaRefresh"})
 	return err
 }
