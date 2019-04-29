@@ -1,2 +1,2 @@
 # go-aci
-ACI tools for Go
+Go ACI client library. WIP--don't use (yet).
