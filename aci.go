@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
@@ -23,24 +22,13 @@ type Config struct {
 	IP             string
 	Password       string
 	Username       string
-	Logger         Logger
 	RequestTimeout time.Duration
-}
-
-// Logger : common logging interface for logrus, etc
-type Logger interface {
-	Debug(args ...interface{})
-	Info(args ...interface{})
-	Warn(args ...interface{})
-	Error(args ...interface{})
-	Panic(args ...interface{})
 }
 
 // Client : httpClient wrapper
 type Client struct {
 	httpClient *http.Client
 	cfg        *Config
-	log        Logger
 }
 
 // Req : API request
@@ -77,16 +65,13 @@ func (c *Config) validate() {
 
 }
 
-// NewClientFromCLI : Create new ACI client struct
-func NewClientFromCLI(cfg Config) Client {
+// NewClient : Create new ACI client struct
+func NewClient(cfg Config) Client {
 	cfg.validate()
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
 		InsecureSkipVerify: true,
 	}
-	cookieJar, err := cookiejar.New(nil)
-	if err != nil {
-		log.Panic(err)
-	}
+	cookieJar, _ := cookiejar.New(nil)
 	httpClient := http.Client{
 		Timeout: time.Second * cfg.RequestTimeout,
 		Jar:     cookieJar,
@@ -94,7 +79,6 @@ func NewClientFromCLI(cfg Config) Client {
 	return Client{
 		httpClient: &httpClient,
 		cfg:        &cfg,
-		log:        cfg.Logger,
 	}
 }
 
@@ -114,7 +98,6 @@ func (c *Client) GetURI(s string) (Res, error) {
 // Get : APIC get request
 func (c *Client) Get(req Req) (Res, error) {
 	url := c.newURL(req)
-	c.log.Debug(fmt.Sprintf("GET request to %s", req.URI))
 	httpRes, err := c.httpClient.Get(url)
 	if err != nil {
 		return Res{}, err
@@ -136,7 +119,6 @@ func (c *Client) Login() error {
 	url := c.newURL(Req{URI: uri})
 	data := fmt.Sprintf(`{"aaaUser":{"attributes":{"name":"%s","pwd":"%s"}}}`,
 		c.cfg.Username, c.cfg.Password)
-	c.log.Debug(fmt.Sprintf("GET request to %s", uri))
 	res, err := c.httpClient.Post(url, "json", strings.NewReader(data))
 	if err != nil {
 		return err
@@ -153,7 +135,6 @@ func (c *Client) Login() error {
 	if errText != "" {
 		return errors.New("authentication error")
 	}
-	c.log.Info("Authentication successful.")
 	return nil
 }
 
