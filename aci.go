@@ -17,27 +17,37 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-// Config : APIC configuration object from CLI, config file, etc
+// Config is the required APIC info to create a client.
+// If not provided, the library will prompt for input.
 type Config struct {
-	IP             string
-	Password       string
-	Username       string
+	// IP is the APIC IP address or resolvable hostname
+	IP string
+	// Password is the APIC password
+	Password string
+	// Username is the APIC username
+	Username string
+	// RequestTimeout defaults to 60 seconds
 	RequestTimeout time.Duration
 }
 
-// Client : httpClient wrapper
+// Client is an HTTP client for the ACI API.
 type Client struct {
 	httpClient *http.Client
 	cfg        *Config
 }
 
-// Req : API request
+// Req is an API request.
 type Req struct {
-	URI   string
+	// URI is the fragment of the URL between the IP and .json.
+	// e.g. /api/class/fvTenant
+	URI string
+	// Query is a list of query parameters in string form.
+	// e.g. rsp-subtree-include=count
 	Query []string
 }
 
-// Res : API request result
+// Res is an API result.
+// Alias for gjson.Result
 type Res = gjson.Result
 
 func input(prompt string) string {
@@ -62,10 +72,9 @@ func (c *Config) validate() {
 	if c.RequestTimeout == 0 {
 		c.RequestTimeout = 30
 	}
-
 }
 
-// NewClient : Create new ACI client struct
+// NewClient creates a new ACI API client
 func NewClient(cfg Config) Client {
 	cfg.validate()
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
@@ -90,12 +99,12 @@ func (c *Client) newURL(req Req) string {
 	return result
 }
 
-// GetURI : Shortcut for GET request with no query parameters
+// GetURI returns a GJSON result. Shortcut for Get with no query parameters.
 func (c *Client) GetURI(s string) (Res, error) {
 	return c.Get(Req{URI: s})
 }
 
-// Get : APIC get request
+// Get makes a request and returns a GJSON result.
 func (c *Client) Get(req Req) (Res, error) {
 	url := c.newURL(req)
 	httpRes, err := c.httpClient.Get(url)
@@ -113,7 +122,7 @@ func (c *Client) Get(req Req) (Res, error) {
 	return Res(gjson.GetBytes(body, "imdata")), nil
 }
 
-// Login : Login to the APIC
+// Login authenticates to the APIC and returns an error
 func (c *Client) Login() error {
 	uri := "/api/aaaLogin"
 	url := c.newURL(Req{URI: uri})
@@ -138,7 +147,8 @@ func (c *Client) Login() error {
 	return nil
 }
 
-// Refresh : Refresh the auth token
+// Refresh updates the authentication token.
+// By default, this will time out after ten minutes.
 func (c *Client) Refresh() error {
 	_, err := c.Get(Req{URI: "/api/aaaRefresh"})
 	return err
