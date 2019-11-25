@@ -1,113 +1,113 @@
+// Package aci is a a Cisco ACI client library.
 package aci
 
 import (
-	"bufio"
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
-	"os"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/tidwall/gjson"
-	"golang.org/x/crypto/ssh/terminal"
+	"github.com/tidwall/sjson"
 )
 
-// Config is the required APIC info to create a client.
-// If not provided, the library will prompt for input.
-type Config struct {
-	// IP is the APIC IP address or resolvable hostname
-	IP string
-	// Password is the APIC password
-	Password string
-	// Username is the APIC username
-	Username string
-	// RequestTimeout defaults to 60 seconds
-	RequestTimeout time.Duration
-}
-
-// Client is an HTTP client for the ACI API.
+// Client is an API client.
 type Client struct {
-	httpClient *http.Client
-	cfg        *Config
+	httpClient  *http.Client
+	url         string
+	usr         string
+	pwd         string
+	lastRefresh time.Time
 }
 
-// Req is an API request.
-type Req struct {
-	// URI is the fragment of the URL between the IP and .json.
-	// e.g. /api/class/fvTenant
-	URI string
-	// Query is a list of query parameters in string form.
-	// e.g. rsp-subtree-include=count
-	Query []string
-}
+// NewClient creates a new API client.
+func NewClient(url, usr, pwd string) (Client, error) {
+	var requestTimeout time.Duration = 60
 
-// Res is an API result.
-// Alias for gjson.Result
-type Res = gjson.Result
+	// disable unsigned cert check
+	// http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
+	// 	InsecureSkipVerify: true,
+	// }
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 
-func input(prompt string) string {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Printf("%s ", prompt)
-	input, _ := reader.ReadString('\n')
-	return strings.Trim(input, "\r\n")
-}
-
-func (c *Config) validate() {
-	if c.IP == "" {
-		c.IP = input("APIC IP:")
-	}
-	if c.Username == "" {
-		c.Username = input("Username:")
-	}
-	if c.Password == "" {
-		fmt.Print("Password: ")
-		pwd, _ := terminal.ReadPassword(int(syscall.Stdin))
-		c.Password = string(pwd)
-	}
-	if c.RequestTimeout == 0 {
-		c.RequestTimeout = 30
-	}
-}
-
-// NewClient creates a new ACI API client
-func NewClient(cfg Config) Client {
-	cfg.validate()
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
-		InsecureSkipVerify: true,
-	}
 	cookieJar, _ := cookiejar.New(nil)
 	httpClient := http.Client{
-		Timeout: time.Second * cfg.RequestTimeout,
-		Jar:     cookieJar,
+		Timeout:   time.Second * requestTimeout,
+		Transport: tr,
+		Jar:       cookieJar,
 	}
+
 	return Client{
 		httpClient: &httpClient,
-		cfg:        &cfg,
+		url:        url,
+		usr:        usr,
+		pwd:        pwd,
+	}, nil
+}
+
+// Req is an API request wrapper around http.Request.
+type Req struct {
+	httpReq *http.Request
+	refresh bool
+}
+
+// Res is an API response returned by HTTP requests.
+type Res = gjson.Result
+
+// NewReq createa a new Req against this client.
+func (c Client) NewReq(method, urn string, body io.Reader) Req {
+	uri := fmt.Sprintf("%s%s.json", c.url, urn)
+	httpReq, _ := http.NewRequest(method, uri, body)
+	return Req{
+		httpReq: httpReq,
+		refresh: true,
 	}
 }
 
-func (c *Client) newURL(req Req) string {
-	result := fmt.Sprintf("https://%s%s.json", c.cfg.IP, req.URI)
-	if len(req.Query) > 0 {
-		return fmt.Sprintf("%s?%s", result, strings.Join(req.Query, "&"))
+// Get makes a GET request and returns a GJSON result.
+func (c Client) Get(urn string, options ...func(*Req)) (Res, error) {
+	req := c.NewReq("GET", urn, nil)
+	for _, option := range options {
+		option(&req)
 	}
-	return result
+	// TODO caching option.
+	if req.refresh && time.Now().Sub(c.lastRefresh) > 480*time.Second {
+		c.Refresh()
+	}
+
+	httpRes, err := c.httpClient.Do(req.httpReq)
+	if err != nil {
+		return Res{}, err
+	}
+	defer httpRes.Body.Close()
+	if httpRes.StatusCode != http.StatusOK {
+		return Res{}, fmt.Errorf("received HTTP status %d", httpRes.StatusCode)
+	}
+	body, err := ioutil.ReadAll(httpRes.Body)
+	if err != nil {
+		return Res{}, errors.New("cannot decode response body")
+	}
+	return Res(gjson.ParseBytes(body)), nil
 }
 
-// GetURI returns a GJSON result. Shortcut for Get with no query parameters.
-func (c *Client) GetURI(s string) (Res, error) {
-	return c.Get(Req{URI: s})
-}
+// Post makes a POST request and returns a GJSON result.
+func (c Client) Post(urn, data string, options ...func(*Req)) (Res, error) {
+	req := c.NewReq("POST", urn, strings.NewReader(data))
+	for _, option := range options {
+		option(&req)
+	}
+	if req.refresh && time.Now().Sub(c.lastRefresh) > 480*time.Second {
+		c.Refresh()
+	}
 
-// Get makes a request and returns a GJSON result.
-func (c *Client) Get(req Req) (Res, error) {
-	url := c.newURL(req)
-	httpRes, err := c.httpClient.Get(url)
+	httpRes, err := c.httpClient.Do(req.httpReq)
 	if err != nil {
 		return Res{}, err
 	}
@@ -119,37 +119,43 @@ func (c *Client) Get(req Req) (Res, error) {
 	if err != nil {
 		return Res{}, err
 	}
-	return Res(gjson.GetBytes(body, "imdata")), nil
+	return Res(gjson.ParseBytes(body)), nil
 }
 
-// Login authenticates to the APIC and returns an error
-func (c *Client) Login() error {
-	uri := "/api/aaaLogin"
-	url := c.newURL(Req{URI: uri})
-	data := fmt.Sprintf(`{"aaaUser":{"attributes":{"name":"%s","pwd":"%s"}}}`,
-		c.cfg.Username, c.cfg.Password)
-	res, err := c.httpClient.Post(url, "json", strings.NewReader(data))
+// NoRefresh prevents token refresh check.
+func NoRefresh(req *Req) {
+	req.refresh = false
+}
+
+// Query sets query parameters.
+func Query(k, v string) func(req *Req) {
+	return func(req *Req) {
+		q := req.httpReq.URL.Query()
+		q.Add(k, v)
+		req.httpReq.URL.RawQuery = q.Encode()
+	}
+}
+
+// Login authenticates to the APIC.
+func (c Client) Login() error {
+	data, _ := sjson.Set("", "aaaUser.attributes", map[string]string{
+		"name": c.usr,
+		"pwd":  c.pwd,
+	})
+	res, err := c.Post("/api/aaaLogin", data, NoRefresh)
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP response: %s", res.Status)
-	}
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return err
-	}
-	errText := gjson.GetBytes(body, "imdata|0|error|attributes|text").Str
+	errText := res.Get("imdata|0|error|attributes|text").Str
 	if errText != "" {
 		return errors.New("authentication error")
 	}
+	c.lastRefresh = time.Now()
 	return nil
 }
 
-// Refresh updates the authentication token.
-// By default, this will time out after ten minutes.
-func (c *Client) Refresh() error {
-	_, err := c.Get(Req{URI: "/api/aaaRefresh"})
+// Refresh refreshes the authentication token.
+func (c Client) Refresh() error {
+	_, err := c.Get("/api/aaaRefresh", NoRefresh)
 	return err
 }
