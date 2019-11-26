@@ -25,7 +25,7 @@ type Client struct {
 }
 
 // NewClient creates a new API client.
-func NewClient(url, usr, pwd string, options ...func(*Client)) (Client, error) {
+func NewClient(url, usr, pwd string, mods ...func(*Client)) (Client, error) {
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -44,8 +44,8 @@ func NewClient(url, usr, pwd string, options ...func(*Client)) (Client, error) {
 		usr:        usr,
 		pwd:        pwd,
 	}
-	for _, option := range options {
-		option(&client)
+	for _, mod := range mods {
+		mod(&client)
 	}
 	return client, nil
 }
@@ -58,10 +58,10 @@ func RequestTimeout(x time.Duration) func(*Client) {
 }
 
 // Get makes a GET request and returns a GJSON result.
-func (c Client) Get(urn string, options ...func(*Req)) (Res, error) {
-	req := c.NewReq("GET", urn, nil)
-	for _, option := range options {
-		option(&req)
+func (c Client) Get(urn string, mods ...func(*Request)) (Response, error) {
+	req := c.NewRequest("GET", urn, nil)
+	for _, mod := range mods {
+		mod(&req)
 	}
 	// TODO caching option.
 	if req.refresh && time.Now().Sub(c.lastRefresh) > 480*time.Second {
@@ -70,21 +70,21 @@ func (c Client) Get(urn string, options ...func(*Req)) (Res, error) {
 
 	httpRes, err := c.httpClient.Do(req.httpReq)
 	if err != nil {
-		return Res{}, err
+		return Response{}, err
 	}
 	defer httpRes.Body.Close()
 	if httpRes.StatusCode != http.StatusOK {
-		return Res{}, fmt.Errorf("received HTTP status %d", httpRes.StatusCode)
+		return Response{}, fmt.Errorf("received HTTP status %d", httpRes.StatusCode)
 	}
 	body, err := ioutil.ReadAll(httpRes.Body)
 	if err != nil {
-		return Res{}, errors.New("cannot decode response body")
+		return Response{}, errors.New("cannot decode response body")
 	}
-	return Res(gjson.ParseBytes(body)), nil
+	return Response(gjson.ParseBytes(body)), nil
 }
 
-func (c Client) GetClass(class string, options ...func(*Req)) (Res, error) {
-	res, err := c.Get(fmt.Sprintf("/api/class/%s", class))
+func (c Client) GetClass(class string, mods ...func(*Request)) (Response, error) {
+	res, err := c.Get(fmt.Sprintf("/api/class/%s", class), mods...)
 	if err != nil {
 		return res, err
 	}
@@ -92,10 +92,10 @@ func (c Client) GetClass(class string, options ...func(*Req)) (Res, error) {
 }
 
 // Post makes a POST request and returns a GJSON result.
-func (c Client) Post(urn, data string, options ...func(*Req)) (Res, error) {
-	req := c.NewReq("POST", urn, strings.NewReader(data))
-	for _, option := range options {
-		option(&req)
+func (c Client) Post(urn, data string, mods ...func(*Request)) (Response, error) {
+	req := c.NewRequest("POST", urn, strings.NewReader(data))
+	for _, mod := range mods {
+		mod(&req)
 	}
 	if req.refresh && time.Now().Sub(c.lastRefresh) > 480*time.Second {
 		c.Refresh()
@@ -103,17 +103,17 @@ func (c Client) Post(urn, data string, options ...func(*Req)) (Res, error) {
 
 	httpRes, err := c.httpClient.Do(req.httpReq)
 	if err != nil {
-		return Res{}, err
+		return Response{}, err
 	}
 	defer httpRes.Body.Close()
 	if httpRes.StatusCode != http.StatusOK {
-		return Res{}, fmt.Errorf("HTTP response: %s", httpRes.Status)
+		return Response{}, fmt.Errorf("HTTP response: %s", httpRes.Status)
 	}
 	body, err := ioutil.ReadAll(httpRes.Body)
 	if err != nil {
-		return Res{}, err
+		return Response{}, err
 	}
-	return Res(gjson.ParseBytes(body)), nil
+	return Response(gjson.ParseBytes(body)), nil
 }
 
 // Login authenticates to the APIC.

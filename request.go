@@ -7,30 +7,30 @@ import (
 	"net/http"
 )
 
-// Req is an API request wrapper around http.Request.
-type Req struct {
+// Request is an API request wrapper around http.Request.
+type Request struct {
 	httpReq *http.Request
 	refresh bool
 }
 
-// NewReq creates a new Req against this client.
-func (c Client) NewReq(method, urn string, body io.Reader) Req {
+// NewRequest creates a new Request against this client.
+func (c Client) NewRequest(method, urn string, body io.Reader) Request {
 	uri := fmt.Sprintf("%s%s.json", c.url, urn)
 	httpReq, _ := http.NewRequest(method, uri, body)
-	return Req{
+	return Request{
 		httpReq: httpReq,
 		refresh: true,
 	}
 }
 
 // NoRefresh prevents token refresh check.
-func NoRefresh(req *Req) {
+func NoRefresh(req *Request) {
 	req.refresh = false
 }
 
 // Query sets query parameters.
-func Query(k, v string) func(req *Req) {
-	return func(req *Req) {
+func Query(k, v string) func(req *Request) {
+	return func(req *Request) {
 		q := req.httpReq.URL.Query()
 		q.Add(k, v)
 		req.httpReq.URL.RawQuery = q.Encode()
