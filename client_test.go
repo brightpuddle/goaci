@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	testHost = "https://apic"
+	testUrl = "https://10.0.0.1"
 )
 
 func testClient() Client {
-	client, _ := NewClient(testHost, "usr", "pwd")
+	client, _ := NewClient(testUrl, "usr", "pwd")
 	gock.InterceptClient(client.httpClient)
 	return client
 }
@@ -32,7 +32,7 @@ func (r ErrReader) Read(buf []byte) (int, error) {
 
 // TestNewClient tests client initiation parameters.
 func TestNewClient(t *testing.T) {
-	client, _ := NewClient(testHost, "usr", "pwd", RequestTimeout(120))
+	client, _ := NewClient(testUrl, "usr", "pwd", RequestTimeout(120))
 	assert.Equal(t, client.httpClient.Timeout, 120*time.Second)
 }
 
@@ -42,16 +42,16 @@ func TestLogin(t *testing.T) {
 	client := testClient()
 
 	// Successful login
-	gock.New(testHost).Post("/api/aaaLogin.json").Reply(200)
+	gock.New(testUrl).Post("/api/aaaLogin.json").Reply(200)
 	assert.NoError(t, client.Login())
 
 	// Invalid HTTP status code
-	gock.New(testHost).Post("/api/aaaLogin.json").Reply(405)
+	gock.New(testUrl).Post("/api/aaaLogin.json").Reply(405)
 	assert.Error(t, client.Login())
 
 	// JSON error from APIC
 	body, _ := sjson.Set("", "imdata.0.error.attributes.text", "error")
-	gock.New(testHost).
+	gock.New(testUrl).
 		Post("/api/aaaLogin.json").
 		Reply(200).
 		BodyString(body)
@@ -63,7 +63,7 @@ func TestRefresh(t *testing.T) {
 	defer gock.Off()
 	client := testClient()
 
-	gock.New(testHost).
+	gock.New(testUrl).
 		Get("/api/aaaRefresh.json").
 		Reply(200)
 
@@ -76,22 +76,22 @@ func TestGet(t *testing.T) {
 	client := testClient()
 
 	// Success
-	gock.New(testHost).Get("/url.json").Reply(200)
+	gock.New(testUrl).Get("/url.json").Reply(200)
 	_, err := client.Get("/url")
 	assert.NoError(t, err)
 
 	// HTTP error
-	gock.New(testHost).Get("/url.json").ReplyError(errors.New("fail"))
+	gock.New(testUrl).Get("/url.json").ReplyError(errors.New("fail"))
 	_, err = client.Get("/url")
 	assert.Error(t, err)
 
 	// Invalid HTTP status code
-	gock.New(testHost).Get("/url.json").Reply(405)
+	gock.New(testUrl).Get("/url.json").Reply(405)
 	_, err = client.Get("/url")
 	assert.Error(t, err)
 
 	// Error decoding response body
-	gock.New(testHost).
+	gock.New(testUrl).
 		Get("/url.json").
 		Reply(200).
 		Map(func(res *http.Response) *http.Response {
@@ -112,17 +112,31 @@ func TestGetClass(t *testing.T) {
 	body, _ = sjson.Set(body, "imdata.0.test.attributes.i", 0)
 	body, _ = sjson.Set(body, "imdata.1.test.attributes.i", 1)
 	body, _ = sjson.Set(body, "imdata.2.other.attributes.i", 2)
-	gock.New(testHost).
-		Get("/api/class/test.json").
-		Reply(200).
-		BodyString(body)
+	gock.New(testUrl).Get("/api/class/test.json").Reply(200).BodyString(body)
 	res, _ := client.GetClass("test")
 	assert.Len(t, res.Array(), 3)
 	assert.Equal(t, `{"i":1}`, res.Get("1").Raw)
 
 	// HTTP error
-	gock.New(testHost).Get("/api/class/test.json").ReplyError(errors.New("fail"))
+	gock.New(testUrl).Get("/api/class/test.json").ReplyError(errors.New("fail"))
 	_, err := client.GetClass("test")
+	assert.Error(t, err)
+}
+
+// TestGetDn tests the GetDn method.
+func TestGetDn(t *testing.T) {
+	defer gock.Off()
+	client := testClient()
+
+	// Success
+	body, _ := sjson.Set("", "imdata.0.test.attributes.name", "test")
+	gock.New(testUrl).Get("/api/mo/test.json").Reply(200).BodyString(body)
+	res, _ := client.GetDn("test")
+	assert.Equal(t, `{"name":"test"}`, res.Raw)
+
+	// HTTP error
+	gock.New(testUrl).Get("/api/class/test.json").ReplyError(errors.New("fail"))
+	_, err := client.GetDn("test")
 	assert.Error(t, err)
 }
 
@@ -134,22 +148,22 @@ func TestPost(t *testing.T) {
 	var err error
 
 	// Success
-	gock.New(testHost).Post("/url.json").Reply(200)
+	gock.New(testUrl).Post("/url.json").Reply(200)
 	_, err = client.Post("/url", "{}")
 	assert.NoError(t, err)
 
 	// HTTP error
-	gock.New(testHost).Post("/url.json").ReplyError(errors.New("fail"))
+	gock.New(testUrl).Post("/url.json").ReplyError(errors.New("fail"))
 	_, err = client.Post("/url", "{}")
 	assert.Error(t, err)
 
 	// Invalid HTTP status code
-	gock.New(testHost).Post("/url.json").Reply(405)
+	gock.New(testUrl).Post("/url.json").Reply(405)
 	_, err = client.Post("/url", "{}")
 	assert.Error(t, err)
 
 	// Error decoding response body
-	gock.New(testHost).
+	gock.New(testUrl).
 		Post("/url.json").
 		Reply(200).
 		Map(func(res *http.Response) *http.Response {
@@ -158,14 +172,4 @@ func TestPost(t *testing.T) {
 		})
 	_, err = client.Post("/url", "{}")
 	assert.Error(t, err)
-}
-
-// TestQuery tests query parameters.
-func TestQuery(t *testing.T) {
-	defer gock.Off()
-	client := testClient()
-
-	gock.New(testHost).Get("/url").MatchParam("foo", "bar").Reply(200)
-	_, err := client.Get("/url", Query("foo", "bar"))
-	assert.NoError(t, err)
 }

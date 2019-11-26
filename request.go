@@ -14,13 +14,16 @@ type Request struct {
 }
 
 // NewRequest creates a new Request against this client.
-func (c Client) NewRequest(method, urn string, body io.Reader) Request {
-	uri := fmt.Sprintf("%s%s.json", c.url, urn)
-	httpReq, _ := http.NewRequest(method, uri, body)
-	return Request{
+func NewRequest(method, uri string, body io.Reader, mods ...func(*Request)) Request {
+	httpReq, _ := http.NewRequest(method, fmt.Sprintf("%s.json", uri), body)
+	req := Request{
 		httpReq: httpReq,
 		refresh: true,
 	}
+	for _, mod := range mods {
+		mod(&req)
+	}
+	return req
 }
 
 // NoRefresh prevents token refresh check.

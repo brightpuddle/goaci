@@ -58,11 +58,9 @@ func RequestTimeout(x time.Duration) func(*Client) {
 }
 
 // Get makes a GET request and returns a GJSON result.
-func (c Client) Get(urn string, mods ...func(*Request)) (Response, error) {
-	req := c.NewRequest("GET", urn, nil)
-	for _, mod := range mods {
-		mod(&req)
-	}
+func (c Client) Get(path string, mods ...func(*Request)) (Response, error) {
+	req := NewRequest("GET", c.url+path, nil, mods...)
+
 	// TODO caching option.
 	if req.refresh && time.Now().Sub(c.lastRefresh) > 480*time.Second {
 		c.Refresh()
@@ -83,6 +81,7 @@ func (c Client) Get(urn string, mods ...func(*Request)) (Response, error) {
 	return Response(gjson.ParseBytes(body)), nil
 }
 
+// GetClass makes a GET request by class and unwraps the results.
 func (c Client) GetClass(class string, mods ...func(*Request)) (Response, error) {
 	res, err := c.Get(fmt.Sprintf("/api/class/%s", class), mods...)
 	if err != nil {
@@ -91,12 +90,18 @@ func (c Client) GetClass(class string, mods ...func(*Request)) (Response, error)
 	return res.Get("imdata.#.*.attributes"), nil
 }
 
-// Post makes a POST request and returns a GJSON result.
-func (c Client) Post(urn, data string, mods ...func(*Request)) (Response, error) {
-	req := c.NewRequest("POST", urn, strings.NewReader(data))
-	for _, mod := range mods {
-		mod(&req)
+// GetDn makes a GET request by DN and unwraps the result.
+func (c Client) GetDn(dn string, mods ...func(*Request)) (Response, error) {
+	res, err := c.Get(fmt.Sprintf("/api/mo/%s", dn), mods...)
+	if err != nil {
+		return res, err
 	}
+	return res.Get("imdata.0.*.attributes"), nil
+}
+
+// Post makes a POST request and returns a GJSON result.
+func (c Client) Post(path, data string, mods ...func(*Request)) (Response, error) {
+	req := NewRequest("POST", c.url+path, strings.NewReader(data), mods...)
 	if req.refresh && time.Now().Sub(c.lastRefresh) > 480*time.Second {
 		c.Refresh()
 	}
