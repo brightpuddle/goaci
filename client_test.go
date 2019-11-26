@@ -50,11 +50,11 @@ func TestLogin(t *testing.T) {
 	assert.Error(t, client.Login())
 
 	// JSON error from APIC
-	responseBody, _ := sjson.Set("", "imdata.0.error.attributes.text", "error")
+	body, _ := sjson.Set("", "imdata.0.error.attributes.text", "error")
 	gock.New(testHost).
 		Post("/api/aaaLogin.json").
 		Reply(200).
-		BodyString(responseBody)
+		BodyString(body)
 	assert.Error(t, client.Login())
 }
 
@@ -99,6 +99,30 @@ func TestGet(t *testing.T) {
 			return res
 		})
 	_, err = client.Get("/url")
+	assert.Error(t, err)
+}
+
+// TestGetClass tests the GetClass method.
+func TestGetClass(t *testing.T) {
+	defer gock.Off()
+	client := testClient()
+
+	// Success
+	var body string
+	body, _ = sjson.Set(body, "imdata.0.test.attributes.i", 0)
+	body, _ = sjson.Set(body, "imdata.1.test.attributes.i", 1)
+	body, _ = sjson.Set(body, "imdata.2.other.attributes.i", 2)
+	gock.New(testHost).
+		Get("/api/class/test.json").
+		Reply(200).
+		BodyString(body)
+	res, _ := client.GetClass("test")
+	assert.Len(t, res.Array(), 3)
+	assert.Equal(t, `{"i":1}`, res.Get("1").Raw)
+
+	// HTTP error
+	gock.New(testHost).Get("/api/class/test.json").ReplyError(errors.New("fail"))
+	_, err := client.GetClass("test")
 	assert.Error(t, err)
 }
 

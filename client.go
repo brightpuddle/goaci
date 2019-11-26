@@ -83,6 +83,14 @@ func (c Client) Get(urn string, options ...func(*Req)) (Res, error) {
 	return Res(gjson.ParseBytes(body)), nil
 }
 
+func (c Client) GetClass(class string, options ...func(*Req)) (Res, error) {
+	res, err := c.Get(fmt.Sprintf("/api/class/%s", class))
+	if err != nil {
+		return res, err
+	}
+	return res.Get("imdata.#.*.attributes"), nil
+}
+
 // Post makes a POST request and returns a GJSON result.
 func (c Client) Post(urn, data string, options ...func(*Req)) (Res, error) {
 	req := c.NewReq("POST", urn, strings.NewReader(data))
