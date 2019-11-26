@@ -52,15 +52,6 @@ func NewClient(url, usr, pwd string) (Client, error) {
 	}, nil
 }
 
-// Req is an API request wrapper around http.Request.
-type Req struct {
-	httpReq *http.Request
-	refresh bool
-}
-
-// Res is an API response returned by HTTP requests.
-type Res = gjson.Result
-
 // NewReq createa a new Req against this client.
 func (c Client) NewReq(method, urn string, body io.Reader) Req {
 	uri := fmt.Sprintf("%s%s.json", c.url, urn)
@@ -120,20 +111,6 @@ func (c Client) Post(urn, data string, options ...func(*Req)) (Res, error) {
 		return Res{}, err
 	}
 	return Res(gjson.ParseBytes(body)), nil
-}
-
-// NoRefresh prevents token refresh check.
-func NoRefresh(req *Req) {
-	req.refresh = false
-}
-
-// Query sets query parameters.
-func Query(k, v string) func(req *Req) {
-	return func(req *Req) {
-		q := req.httpReq.URL.Query()
-		q.Add(k, v)
-		req.httpReq.URL.RawQuery = q.Encode()
-	}
 }
 
 // Login authenticates to the APIC.
