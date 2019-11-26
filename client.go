@@ -25,30 +25,36 @@ type Client struct {
 }
 
 // NewClient creates a new API client.
-func NewClient(url, usr, pwd string) (Client, error) {
-	var requestTimeout time.Duration = 60
+func NewClient(url, usr, pwd string, options ...func(*Client)) (Client, error) {
 
-	// disable unsigned cert check
-	// http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
-	// 	InsecureSkipVerify: true,
-	// }
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
 	cookieJar, _ := cookiejar.New(nil)
 	httpClient := http.Client{
-		Timeout:   time.Second * requestTimeout,
+		Timeout:   60 * time.Second,
 		Transport: tr,
 		Jar:       cookieJar,
 	}
 
-	return Client{
+	client := Client{
 		httpClient: &httpClient,
 		url:        url,
 		usr:        usr,
 		pwd:        pwd,
-	}, nil
+	}
+	for _, option := range options {
+		option(&client)
+	}
+	return client, nil
+}
+
+// RequestTimeout modifies the request timeout from the default.
+func RequestTimeout(x time.Duration) func(*Client) {
+	return func(client *Client) {
+		client.httpClient.Timeout = x * time.Second
+	}
 }
 
 // Get makes a GET request and returns a GJSON result.

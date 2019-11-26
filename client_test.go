@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/tidwall/sjson"
@@ -27,6 +28,12 @@ type ErrReader struct{}
 // Read mocks failing io.Reader test cases.
 func (r ErrReader) Read(buf []byte) (int, error) {
 	return 0, errors.New("fail")
+}
+
+// TestNewClient tests client initiation parameters.
+func TestNewClient(t *testing.T) {
+	client, _ := NewClient(testHost, "usr", "pwd", RequestTimeout(120))
+	assert.Equal(t, client.httpClient.Timeout, 120*time.Second)
 }
 
 // TestLogin tests the Login method.
