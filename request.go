@@ -2,6 +2,8 @@
 package aci
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -9,6 +11,16 @@ import (
 type Req struct {
 	httpReq *http.Request
 	refresh bool
+}
+
+// NewReq creates a new Req against this client.
+func (c Client) NewReq(method, urn string, body io.Reader) Req {
+	uri := fmt.Sprintf("%s%s.json", c.url, urn)
+	httpReq, _ := http.NewRequest(method, uri, body)
+	return Req{
+		httpReq: httpReq,
+		refresh: true,
+	}
 }
 
 // NoRefresh prevents token refresh check.

@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -50,16 +49,6 @@ func NewClient(url, usr, pwd string) (Client, error) {
 		usr:        usr,
 		pwd:        pwd,
 	}, nil
-}
-
-// NewReq createa a new Req against this client.
-func (c Client) NewReq(method, urn string, body io.Reader) Req {
-	uri := fmt.Sprintf("%s%s.json", c.url, urn)
-	httpReq, _ := http.NewRequest(method, uri, body)
-	return Req{
-		httpReq: httpReq,
-		refresh: true,
-	}
 }
 
 // Get makes a GET request and returns a GJSON result.
