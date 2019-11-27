@@ -1,5 +1,4 @@
-// Package aci is a a Cisco ACI client library.
-package aci
+package goaci
 
 import (
 	"github.com/tidwall/gjson"
