@@ -1,0 +1,25 @@
+{
+  "polUni": {
+    "attributes": {
+      "dn": "uni",
+      "name": "root"
+    },
+    "children": [
+      {
+        "fvTenant": {
+          "attributes": {
+            "dn": "uni/tn-a",
+            "name": "a"
+          }
+        }
+      },
+      {
+        "fvTenant": {
+          "attributes": {
+            "name": "b"
+          }
+        }
+      }
+    ]
+  }
+}
