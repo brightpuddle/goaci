@@ -39,7 +39,8 @@ infra
 ```
 
 ### Result manipulation
-`goaci.Result` is a [gjson.Result](https://github.com/tidwall/gjson) object, which provides advanced query capabilities:
+`goaci.Result` uses GJSON to simplify handling JSON results. See the [GJSON](https://github.com/tidwall/gjson) documentation for more detail.
+
 ```go
 res, _ := GetClass("fvBD")
 res.Get("0.fvBD.attributes.name").Str // name of first BD
@@ -53,7 +54,6 @@ for _, bd := range res.Get("#.fvBD.attributes").Array() {
     println(res.Get("@pretty") // pretty print BD attributes
 }
 ```
-See the [GJSON](https://github.com/tidwall/gjson) documentation for more detail on query options.
 
 ### Helpers for common patterns
 ```go
@@ -62,7 +62,7 @@ res, _ := GetClass("fvTenant")
 ```
 
 ### Query parameters
-Pass the `goaci.Query` object to the `Get` request:
+Pass the `goaci.Query` object to the `Get` request to add query paramters:
 
 ```go
 queryInfra := goaci.Query("query-target-filter", `eq(fvTenant.name,"infra")`)
@@ -78,7 +78,7 @@ res, _ := apic.GetClass("isisRoute",
 ```
 
 ### POST data creation
-`goaci.Body` is a wrapper for [SJSON](https://github.com/tidwall/sjson). SJSON supports an advanced path syntax simplifying JSON creation.
+`goaci.Body` is a wrapper for [SJSON](https://github.com/tidwall/sjson). SJSON supports a path syntax simplifying JSON creation.
 
 ```go
 exampleTenant := goaci.Body{}.Set("fvTenant.attributes.name", "goaci-example").Str
@@ -95,7 +95,7 @@ tenantA := goaci.Body{}.
 ...or nested:
 ```go
 attrs := goaci.Body{}.
-    Set("name", goaci-example-b").
+    Set("name", "goaci-example-b").
     Set("descr", "Example tenant B").
     Str
 tenantB := goaaci.Body{}.SetRaw("fvTenant.attributes", attrs).Str
@@ -104,10 +104,10 @@ tenantB := goaaci.Body{}.SetRaw("fvTenant.attributes", attrs).Str
 ### Token refresh
 Token refresh is handled automatically. The APIC client keeps a timer and checks elapsed time on each request, refreshing the token every 8 minutes. This can be handled manually if desired:
 ```go
-apic, _ := goaci.NewAPIC("1.1.1.1", "user", "pwd", goaci.NoRefresh)
+apic, _ := goaci.NewAPIC("1.1.1.1", "user", "pwd")
 apic.Login()
 
-// Do some stuff...
+res, _ := apic.Get("/api/...", goaci.NoRefresh)
 apic.Refresh()
 ```
 
@@ -117,7 +117,6 @@ goACI also features a "backup" client for querying ACI `.tar.gz` backup files. A
 ```go
 backup, _ := goaci.NewBackup("config.tar.gz")
 
-// Get the record for the infra tenantj
 res, _ := backup.GetDn("uni/tn-infra")
 res, _ = backup.GetClass("fvBD")
 ```
