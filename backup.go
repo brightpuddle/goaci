@@ -1,4 +1,3 @@
-// Package goaci is a a Cisco ACI client library for Go.
 package goaci
 
 import (
