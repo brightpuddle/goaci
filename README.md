@@ -34,7 +34,9 @@ func main() {
 }
 ```
 This will print:
-`infra`
+```
+infra
+```
 
 ### Result manipulation
 `goaci.Result` is a [gjson.Result](https://github.com/tidwall/gjson) object, which provide advanced query capabilities:
