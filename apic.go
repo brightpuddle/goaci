@@ -65,7 +65,6 @@ func RequestTimeout(x time.Duration) func(*APIC) {
 func (apic APIC) Get(path string, mods ...func(*Req)) (Res, error) {
 	req := NewReq("GET", apic.url+path, nil, mods...)
 
-	// TODO caching option.
 	if req.refresh && time.Now().Sub(apic.lastRefresh) > 480*time.Second {
 		if err := apic.Refresh(); err != nil {
 			return Res{}, err
