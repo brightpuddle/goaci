@@ -5,7 +5,7 @@ ACI client library for Go
 <p>
 <hr/>
 
-GoACI is a Go client library for Cisco ACI. It features a simple, extensible API, advanced JSON manipulation, and a [backup
+GoACI is a Go client library for Cisco ACI. It features a simple, extensible API, [advanced JSON manipulation](#result-manipulation), and a [backup
 client](#backup-client) for running queries against the backup file.
 
 # Getting Started
