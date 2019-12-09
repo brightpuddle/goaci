@@ -39,7 +39,7 @@ infra
 ```
 
 ### Result manipulation
-`goaci.Result` is a [gjson.Result](https://github.com/tidwall/gjson) object, which provide advanced query capabilities:
+`goaci.Result` is a [gjson.Result](https://github.com/tidwall/gjson) object, which provides advanced query capabilities:
 ```go
 res, _ := GetClass("fvBD")
 res.Get("0.fvBD.attributes.name").Str // name of first BD
