@@ -1,5 +1,5 @@
 <p align="center">
-<img src="logo.png" width="800" height="321" border="0" alt="goACI">
+<img src="logo.png" width="600" height="309" border="0" alt="goACI">
 <br/>
 ACI client library for Go
 <p>
