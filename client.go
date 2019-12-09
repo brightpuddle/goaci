@@ -14,8 +14,8 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// APIC is an HTTP API client.
-type APIC struct {
+// Client is an HTTP API client.
+type Client struct {
 	httpClient  *http.Client
 	url         string
 	usr         string
@@ -23,8 +23,8 @@ type APIC struct {
 	lastRefresh time.Time
 }
 
-// NewAPIC creates a new ACI HTTP client.
-func NewAPIC(url, usr, pwd string, mods ...func(*APIC)) (APIC, error) {
+// NewClient creates a new ACI HTTP client.
+func NewClient(url, usr, pwd string, mods ...func(*Client)) (Client, error) {
 
 	// Normalize the URL
 	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
@@ -42,36 +42,36 @@ func NewAPIC(url, usr, pwd string, mods ...func(*APIC)) (APIC, error) {
 		Jar:       cookieJar,
 	}
 
-	apic := APIC{
+	client := Client{
 		httpClient: &httpClient,
 		url:        url,
 		usr:        usr,
 		pwd:        pwd,
 	}
 	for _, mod := range mods {
-		mod(&apic)
+		mod(&client)
 	}
-	return apic, nil
+	return client, nil
 }
 
 // RequestTimeout modifies the HTTP request timeout from the default.
-func RequestTimeout(x time.Duration) func(*APIC) {
-	return func(apic *APIC) {
-		apic.httpClient.Timeout = x * time.Second
+func RequestTimeout(x time.Duration) func(*Client) {
+	return func(client *Client) {
+		client.httpClient.Timeout = x * time.Second
 	}
 }
 
 // Get makes a GET request and returns a GJSON result.
-func (apic APIC) Get(path string, mods ...func(*Req)) (Res, error) {
-	req := NewReq("GET", apic.url+path, nil, mods...)
+func (client Client) Get(path string, mods ...func(*Req)) (Res, error) {
+	req := NewReq("GET", client.url+path, nil, mods...)
 
-	if req.refresh && time.Now().Sub(apic.lastRefresh) > 480*time.Second {
-		if err := apic.Refresh(); err != nil {
+	if req.refresh && time.Now().Sub(client.lastRefresh) > 480*time.Second {
+		if err := client.Refresh(); err != nil {
 			return Res{}, err
 		}
 	}
 
-	httpRes, err := apic.httpClient.Do(req.httpReq)
+	httpRes, err := client.httpClient.Do(req.httpReq)
 	if err != nil {
 		return Res{}, err
 	}
@@ -87,8 +87,8 @@ func (apic APIC) Get(path string, mods ...func(*Req)) (Res, error) {
 }
 
 // GetClass makes a GET request by class and unwraps the results.
-func (apic APIC) GetClass(class string, mods ...func(*Req)) (Res, error) {
-	res, err := apic.Get(fmt.Sprintf("/api/class/%s", class), mods...)
+func (client Client) GetClass(class string, mods ...func(*Req)) (Res, error) {
+	res, err := client.Get(fmt.Sprintf("/api/class/%s", class), mods...)
 	if err != nil {
 		return res, err
 	}
@@ -96,8 +96,8 @@ func (apic APIC) GetClass(class string, mods ...func(*Req)) (Res, error) {
 }
 
 // GetDn makes a GET request by DN.
-func (apic APIC) GetDn(dn string, mods ...func(*Req)) (Res, error) {
-	res, err := apic.Get(fmt.Sprintf("/api/mo/%s", dn), mods...)
+func (client Client) GetDn(dn string, mods ...func(*Req)) (Res, error) {
+	res, err := client.Get(fmt.Sprintf("/api/mo/%s", dn), mods...)
 	if err != nil {
 		return res, err
 	}
@@ -105,15 +105,15 @@ func (apic APIC) GetDn(dn string, mods ...func(*Req)) (Res, error) {
 }
 
 // Post makes a POST request and returns a GJSON result.
-func (apic APIC) Post(path, data string, mods ...func(*Req)) (Res, error) {
-	req := NewReq("POST", apic.url+path, strings.NewReader(data), mods...)
-	if req.refresh && time.Now().Sub(apic.lastRefresh) > 480*time.Second {
-		if err := apic.Refresh(); err != nil {
+func (client Client) Post(path, data string, mods ...func(*Req)) (Res, error) {
+	req := NewReq("POST", client.url+path, strings.NewReader(data), mods...)
+	if req.refresh && time.Now().Sub(client.lastRefresh) > 480*time.Second {
+		if err := client.Refresh(); err != nil {
 			return Res{}, err
 		}
 	}
 
-	httpRes, err := apic.httpClient.Do(req.httpReq)
+	httpRes, err := client.httpClient.Do(req.httpReq)
 	if err != nil {
 		return Res{}, err
 	}
@@ -128,13 +128,13 @@ func (apic APIC) Post(path, data string, mods ...func(*Req)) (Res, error) {
 	return Res(gjson.ParseBytes(body)), nil
 }
 
-// Login authenticates to the APIC.
-func (apic APIC) Login() error {
+// Login authenticates to the Client.
+func (client Client) Login() error {
 	data := fmt.Sprintf(`{"aaaUser":{"attributes":{"name":"%s","pwd":"%s"}}}`,
-		apic.usr,
-		apic.pwd,
+		client.usr,
+		client.pwd,
 	)
-	res, err := apic.Post("/api/aaaLogin", data, NoRefresh)
+	res, err := client.Post("/api/aaaLogin", data, NoRefresh)
 	if err != nil {
 		return err
 	}
@@ -142,12 +142,12 @@ func (apic APIC) Login() error {
 	if errText != "" {
 		return errors.New("authentication error")
 	}
-	apic.lastRefresh = time.Now()
+	client.lastRefresh = time.Now()
 	return nil
 }
 
 // Refresh refreshes the authentication token.
-func (apic APIC) Refresh() error {
-	_, err := apic.Get("/api/aaaRefresh", NoRefresh)
+func (client Client) Refresh() error {
+	_, err := client.Get("/api/aaaRefresh", NoRefresh)
 	return err
 }

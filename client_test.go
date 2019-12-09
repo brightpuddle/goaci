@@ -17,8 +17,8 @@ const (
 	testURL  = "https://" + testHost
 )
 
-func testAPIC() APIC {
-	client, _ := NewAPIC(testHost, "usr", "pwd")
+func testClient() Client {
+	client, _ := NewClient(testHost, "usr", "pwd")
 	client.lastRefresh = time.Now()
 	gock.InterceptClient(client.httpClient)
 	return client
@@ -32,61 +32,61 @@ func (r ErrReader) Read(buf []byte) (int, error) {
 	return 0, errors.New("fail")
 }
 
-// TestNewAPIC tests the NewAPIC function.
-func TestNewAPIC(t *testing.T) {
-	apic, _ := NewAPIC(testURL, "usr", "pwd", RequestTimeout(120))
-	assert.Equal(t, apic.httpClient.Timeout, 120*time.Second)
+// TestNewClient tests the NewClient function.
+func TestNewClient(t *testing.T) {
+	client, _ := NewClient(testURL, "usr", "pwd", RequestTimeout(120))
+	assert.Equal(t, client.httpClient.Timeout, 120*time.Second)
 }
 
-// TestAPICLogin tests the APIC::Login method.
-func TestAPICLogin(t *testing.T) {
+// TestClientLogin tests the Client::Login method.
+func TestClientLogin(t *testing.T) {
 	defer gock.Off()
-	apic := testAPIC()
+	client := testClient()
 
 	// Successful login
 	gock.New(testURL).Post("/api/aaaLogin.json").Reply(200)
-	assert.NoError(t, apic.Login())
+	assert.NoError(t, client.Login())
 
 	// Invalid HTTP status code
 	gock.New(testURL).Post("/api/aaaLogin.json").Reply(405)
-	assert.Error(t, apic.Login())
+	assert.Error(t, client.Login())
 
-	// JSON error from APIC
+	// JSON error from Client
 	gock.New(testURL).
 		Post("/api/aaaLogin.json").
 		Reply(200).
 		BodyString(Body{}.Set("imdata.0.error.attributes.text", "error").Str)
-	assert.Error(t, apic.Login())
+	assert.Error(t, client.Login())
 }
 
-// TestAPICRefresh tests the APIC::Refresh method.
-func TestAPICRefresh(t *testing.T) {
+// TestClientRefresh tests the Client::Refresh method.
+func TestClientRefresh(t *testing.T) {
 	defer gock.Off()
-	apic := testAPIC()
+	client := testClient()
 
 	gock.New(testURL).Get("/api/aaaRefresh.json").Reply(200)
-	assert.NoError(t, apic.Refresh())
+	assert.NoError(t, client.Refresh())
 }
 
-// TestAPICGet tests the APIC::Get method.
-func TestAPICGet(t *testing.T) {
+// TestClientGet tests the Client::Get method.
+func TestClientGet(t *testing.T) {
 	defer gock.Off()
-	apic := testAPIC()
+	client := testClient()
 	var err error
 
 	// Success
 	gock.New(testURL).Get("/url.json").Reply(200)
-	_, err = apic.Get("/url")
+	_, err = client.Get("/url")
 	assert.NoError(t, err)
 
 	// HTTP error
 	gock.New(testURL).Get("/url.json").ReplyError(errors.New("fail"))
-	_, err = apic.Get("/url")
+	_, err = client.Get("/url")
 	assert.Error(t, err)
 
 	// Invalid HTTP status code
 	gock.New(testURL).Get("/url.json").Reply(405)
-	_, err = apic.Get("/url")
+	_, err = client.Get("/url")
 	assert.Error(t, err)
 
 	// Error decoding response body
@@ -97,22 +97,22 @@ func TestAPICGet(t *testing.T) {
 			res.Body = ioutil.NopCloser(ErrReader{})
 			return res
 		})
-	_, err = apic.Get("/url")
+	_, err = client.Get("/url")
 	assert.Error(t, err)
 
 	// Force token refresh and throw an error
-	apic.lastRefresh = time.Now().AddDate(0, 0, -1)
+	client.lastRefresh = time.Now().AddDate(0, 0, -1)
 	gock.New(testURL).
 		Get("/api/aaaRefresh.json").
 		ReplyError(errors.New("fail"))
-	_, err = apic.Get("/url")
+	_, err = client.Get("/url")
 	assert.Error(t, err)
 }
 
-// TestAPICGetClass tests the APIC::GetClass method.
-func TestAPICGetClass(t *testing.T) {
+// TestClientGetClass tests the Client::GetClass method.
+func TestClientGetClass(t *testing.T) {
 	defer gock.Off()
-	apic := testAPIC()
+	client := testClient()
 
 	// Success
 	gock.New(testURL).
@@ -122,7 +122,7 @@ func TestAPICGetClass(t *testing.T) {
 			Set("imdata.0.fvTenant.attributes.name", "zero").
 			Set("imdata.1.fvTenant.attributes.name", "one").
 			Str)
-	res, _ := apic.GetClass("fvTenant")
+	res, _ := client.GetClass("fvTenant")
 	if !assert.Len(t, res.Array(), 2) {
 		fmt.Println(res.Get("@pretty"))
 	}
@@ -132,21 +132,21 @@ func TestAPICGetClass(t *testing.T) {
 
 	// HTTP error
 	gock.New(testURL).Get("/api/class/test.json").ReplyError(errors.New("fail"))
-	_, err := apic.GetClass("test")
+	_, err := client.GetClass("test")
 	assert.Error(t, err)
 }
 
-// TestAPICGetDn tests the APIC::GetDn method.
-func TestAPICGetDn(t *testing.T) {
+// TestClientGetDn tests the Client::GetDn method.
+func TestClientGetDn(t *testing.T) {
 	defer gock.Off()
-	apic := testAPIC()
+	client := testClient()
 
 	// Success
 	gock.New(testURL).
 		Get("/api/mo/uni/tn-test.json").
 		Reply(200).
 		BodyString(Body{}.Set("imdata.0.fvTenant.attributes.name", "test").Str)
-	res, _ := apic.GetDn("uni/tn-test")
+	res, _ := client.GetDn("uni/tn-test")
 	if !assert.Equal(t, "test", res.Get("fvTenant.attributes.name").Str) {
 		fmt.Println(res.Get("@pretty"))
 	}
@@ -155,30 +155,30 @@ func TestAPICGetDn(t *testing.T) {
 	gock.New(testURL).
 		Get("/api/mo/uni/fail.json").
 		ReplyError(errors.New("fail"))
-	_, err := apic.GetDn("uni/fail")
+	_, err := client.GetDn("uni/fail")
 	assert.Error(t, err)
 }
 
-// TestAPICPost tests the APIC::Post method.
-func TestAPICPost(t *testing.T) {
+// TestClientPost tests the Client::Post method.
+func TestClientPost(t *testing.T) {
 	defer gock.Off()
-	apic := testAPIC()
+	client := testClient()
 
 	var err error
 
 	// Success
 	gock.New(testURL).Post("/url.json").Reply(200)
-	_, err = apic.Post("/url", "{}")
+	_, err = client.Post("/url", "{}")
 	assert.NoError(t, err)
 
 	// HTTP error
 	gock.New(testURL).Post("/url.json").ReplyError(errors.New("fail"))
-	_, err = apic.Post("/url", "{}")
+	_, err = client.Post("/url", "{}")
 	assert.Error(t, err)
 
 	// Invalid HTTP status code
 	gock.New(testURL).Post("/url.json").Reply(405)
-	_, err = apic.Post("/url", "{}")
+	_, err = client.Post("/url", "{}")
 	assert.Error(t, err)
 
 	// Error decoding response body
@@ -189,12 +189,12 @@ func TestAPICPost(t *testing.T) {
 			res.Body = ioutil.NopCloser(ErrReader{})
 			return res
 		})
-	_, err = apic.Post("/url", "{}")
+	_, err = client.Post("/url", "{}")
 	assert.Error(t, err)
 
 	// Force token refresh and throw an error
-	apic.lastRefresh = time.Now().AddDate(0, 0, -1)
+	client.lastRefresh = time.Now().AddDate(0, 0, -1)
 	gock.New(testURL).Get("/api/aaaRefresh.json").ReplyError(errors.New("fail"))
-	_, err = apic.Post("/url", "{}")
+	_, err = client.Post("/url", "{}")
 	assert.Error(t, err)
 }

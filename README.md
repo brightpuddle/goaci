@@ -24,12 +24,12 @@ package main
 import "github.com/brightpuddle/goaci"
 
 func main() {
-    apic, _ := goaci.NewAPIC("1.1.1.1", "user", "pwd")
-    if err := apic.Login(); err != nil {
+    client, _ := goaci.NewClient("1.1.1.1", "user", "pwd")
+    if err := client.Login(); err != nil {
         panic(err)
     }
 
-    res, _ = apic.Get("/api/mo/uni/tn-infra")
+    res, _ = client.Get("/api/mo/uni/tn-infra")
     println(res.Get("imdata.0.*.attributes.name"))
 }
 ```
@@ -66,12 +66,12 @@ Pass the `goaci.Query` object to the `Get` request to add query paramters:
 
 ```go
 queryInfra := goaci.Query("query-target-filter", `eq(fvTenant.name,"infra")`)
-res, _ := apic.GetClass("fvTenant", queryInfra)
+res, _ := client.GetClass("fvTenant", queryInfra)
 ```
 
 Pass as many paramters as needed:
 ```go
-res, _ := apic.GetClass("isisRoute",
+res, _ := client.GetClass("isisRoute",
     goaci.Query("rsp-subtree-include", "relations"),
     goaci.Query("query-target-filter", `eq(isisRoute.pfx,"10.66.0.1/32")`,
 )
@@ -82,7 +82,7 @@ res, _ := apic.GetClass("isisRoute",
 
 ```go
 exampleTenant := goaci.Body{}.Set("fvTenant.attributes.name", "goaci-example").Str
-apic.Post("/api/mo/uni/tn-goaci-example", exampleTenant)
+client.Post("/api/mo/uni/tn-goaci-example", exampleTenant)
 ```
 
 These can be chained:
@@ -102,23 +102,20 @@ tenantB := goaaci.Body{}.SetRaw("fvTenant.attributes", attrs).Str
 ```
 
 ### Token refresh
-Token refresh is handled automatically. The APIC client keeps a timer and checks elapsed time on each request, refreshing the token every 8 minutes. This can be handled manually if desired:
+Token refresh is handled automatically. The client keeps a timer and checks elapsed time on each request, refreshing the token every 8 minutes. This can be handled manually if desired:
 ```go
-apic, _ := goaci.NewAPIC("1.1.1.1", "user", "pwd")
-apic.Login()
-
-res, _ := apic.Get("/api/...", goaci.NoRefresh)
-apic.Refresh()
+res, _ := client.Get("/api/...", goaci.NoRefresh)
+client.Refresh()
 ```
 
 ### Backup client
 goACI also features a "backup" client for querying ACI `.tar.gz` backup files. This client partially mirrors the API of the HTTP client.
 
 ```go
-backup, _ := goaci.NewBackup("config.tar.gz")
+client, _ := goaci.NewBackup("config.tar.gz")
 
-res, _ := backup.GetDn("uni/tn-infra")
-res, _ = backup.GetClass("fvBD")
+res, _ := client.GetDn("uni/tn-infra")
+res, _ = client.GetClass("fvBD")
 ```
 
 ## Examples

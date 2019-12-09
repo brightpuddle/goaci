@@ -16,7 +16,7 @@ func TestSetRaw(t *testing.T) {
 // TestQuery tests the Query function.
 func TestQuery(t *testing.T) {
 	defer gock.Off()
-	client := testAPIC()
+	client := testClient()
 
 	gock.New(testURL).Get("/url").MatchParam("foo", "bar").Reply(200)
 	_, err := client.Get("/url", Query("foo", "bar"))
