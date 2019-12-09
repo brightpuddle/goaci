@@ -120,3 +120,6 @@ backup, _ := goaci.NewBackup("config.tar.gz")
 res, _ := backup.GetDn("uni/tn-infra")
 res, _ = backup.GetClass("fvBD")
 ```
+
+## Examples
+See [the examples](https://github.com/brightpuddle/goaci/tree/master/examples) for more usage.
