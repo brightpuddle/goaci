@@ -112,7 +112,7 @@ apic.Refresh()
 ```
 
 ### Backup client
-goACI also features a "backup" client for querying ACI `.tar.gz` backup files. As much as possible this client mirrors the API of the HTTP client.
+goACI also features a "backup" client for querying ACI `.tar.gz` backup files. This client partially mirrors the API of the HTTP client.
 
 ```go
 backup, _ := goaci.NewBackup("config.tar.gz")
