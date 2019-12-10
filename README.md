@@ -108,7 +108,7 @@ res, _ := client.Get("/api/...", goaci.NoRefresh)
 client.Refresh()
 ```
 
-### Backup client
+## Backup client
 goACI also features a backup file client for querying ACI `.tar.gz` backup files. This client partially mirrors the API of the HTTP client. Note that this must be imported separately.
 
 ```go
