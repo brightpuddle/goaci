@@ -141,9 +141,12 @@ func (client Client) addToDB(root gjson.Result) {
 		thisDn, err := buildDn(moBody.Get("attributes"), mo.parentDn, mo.class)
 		if err == nil {
 			dn := strings.Join(thisDn, "/")
-			attributes := moBody.Get("attributes").Raw
-			template := `{"%s":{"attributes":%s}}`
-			json := gjson.Parse(fmt.Sprintf(template, mo.class, attributes))
+
+			json := Body{}.
+				SetRaw(mo.class+".attributes", moBody.Get("attributes").Raw). // Remove children
+				Set(mo.class+".attributes.dn", dn).                           // Fix the DN
+				gjson()
+
 			client.dns[dn] = &json
 			client.classes[mo.class] = append(client.classes[mo.class], &json)
 		}
