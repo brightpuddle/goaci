@@ -109,14 +109,26 @@ client.Refresh()
 ```
 
 ### Backup client
-goACI also features a "backup" client for querying ACI `.tar.gz` backup files. This client partially mirrors the API of the HTTP client.
+goACI also features a backup file client for querying ACI `.tar.gz` backup files. This client partially mirrors the API of the HTTP client. Note that this must be imported separately.
 
 ```go
-client, _ := goaci.NewBackup("config.tar.gz")
+package main
 
-res, _ := client.GetDn("uni/tn-infra")
-res, _ = client.GetClass("fvBD")
+import "github.com/brightpuddle/goaci/backup"
+
+func main() {
+    client, _ := goaci.NewBackup("config.tar.gz")
+
+    res, _ := client.GetDn("uni/tn-infra")
+    println(res.Get("@pretty"))
+
+    res, _ = client.GetClass("fvBD")
+    for _, bd := range res.Get("#.fvBD.attributes").Array() {
+        fmt.Priintln(bd)
+    }
+
+}
 ```
 
 ## Examples
-See [the examples](https://github.com/brightpuddle/goaci/tree/master/examples) for more usage.
+See [the examples](https://github.com/brightpuddle/goaci/tree/master/examples).
