@@ -117,7 +117,7 @@ package main
 import "github.com/brightpuddle/goaci/backup"
 
 func main() {
-    client, _ := goaci.NewBackup("config.tar.gz")
+    client, _ := backup.NewClient("config.tar.gz")
 
     res, _ := client.GetDn("uni/tn-infra")
     println(res.Get("@pretty"))
