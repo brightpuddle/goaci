@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
 
@@ -21,6 +22,10 @@ func (body Body) SetRaw(path, rawValue string) Body {
 	res, _ := sjson.SetRaw(body.Str, path, rawValue)
 	body.Str = res
 	return body
+}
+
+func (body Body) gjson() gjson.Result {
+	return gjson.Parse(body.Str)
 }
 
 // Req

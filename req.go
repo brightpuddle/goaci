@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
 
@@ -25,6 +26,10 @@ func (body Body) SetRaw(path, rawValue string) Body {
 	res, _ := sjson.SetRaw(body.Str, path, rawValue)
 	body.Str = res
 	return body
+}
+
+func (body Body) gjson() Res {
+	return gjson.Parse(body.Str)
 }
 
 // Req wraps http.Request for API requests.

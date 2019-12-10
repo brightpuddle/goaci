@@ -18,11 +18,6 @@ func newTestClient() func() (Client, error) {
 
 var testClient = newTestClient()
 
-// A testing convenience for generating GJSON from the Body.
-func (body Body) gjson() gjson.Result {
-	return gjson.Parse(body.Str)
-}
-
 // TestFmtRN tests the fmtRn function.
 func TestFmtRN(t *testing.T) {
 	record := gjson.Parse("{}")
