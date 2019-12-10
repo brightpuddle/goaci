@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/brightpuddle/goaci"
+	"github.com/brightpuddle/goaci/backup"
 )
 
 func main() {
-	client, err := goaci.NewBackup("config.tar.gz")
+	client, err := backup.NewClient("config.tar.gz")
 	if err != nil {
 		panic(err)
 	}

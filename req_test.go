@@ -4,8 +4,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/tidwall/gjson"
 	"gopkg.in/h2non/gock.v1"
 )
+
+func (body Body) gjson() gjson.Result {
+	return gjson.Parse(body.Str)
+}
 
 // TestSetRaw tests the Body::SetRaw method.
 func TestSetRaw(t *testing.T) {

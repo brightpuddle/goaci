@@ -1,4 +1,4 @@
-package goaci
+package backup
 
 import (
 	"archive/tar"
@@ -12,8 +12,8 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// Backup is a client that queries an ACI backup file.
-type Backup struct {
+// Client is a ACI backup file client.
+type Client struct {
 	dns     map[string]*Res
 	classes map[string][]*Res
 }
@@ -70,24 +70,24 @@ func buildDn(record gjson.Result, parentDn []string, class string) ([]string, er
 	return append(parentDn, rn), nil
 }
 
-// NewBackup creates a new backup file client.
-func NewBackup(src string) (Backup, error) {
+// NewClient creates a new backup file client.
+func NewClient(src string) (Client, error) {
 	// Open backup file
 	f, err := os.Open(src)
 	if err != nil {
-		return Backup{}, err
+		return Client{}, err
 	}
 	defer f.Close()
 
 	// Unzip backup tar.gz file
 	gzf, err := gzip.NewReader(f)
 	if err != nil {
-		return Backup{}, err
+		return Client{}, err
 	}
 	defer gzf.Close()
 
 	// Initialize client
-	bkup := Backup{
+	client := Client{
 		dns:     make(map[string]*Res),
 		classes: make(map[string][]*Res),
 	}
@@ -100,22 +100,22 @@ func NewBackup(src string) (Backup, error) {
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			return Backup{}, err
+			return Client{}, err
 		}
 		info := header.FileInfo()
 		name := info.Name()
 		if strings.HasSuffix(name, ".json") {
 			data, err := ioutil.ReadAll(tarReader)
 			if err != nil {
-				return Backup{}, err
+				return Client{}, err
 			}
-			bkup.addToDB(gjson.ParseBytes(data))
+			client.addToDB(gjson.ParseBytes(data))
 		}
 	}
-	return bkup, nil
+	return client, nil
 }
 
-func (bkup Backup) addToDB(root gjson.Result) {
+func (client Client) addToDB(root gjson.Result) {
 	type MO struct {
 		object   gjson.Result
 		parentDn []string
@@ -144,8 +144,8 @@ func (bkup Backup) addToDB(root gjson.Result) {
 			attributes := moBody.Get("attributes").Raw
 			template := `{"%s":{"attributes":%s}}`
 			json := gjson.Parse(fmt.Sprintf(template, mo.class, attributes))
-			bkup.dns[dn] = &json
-			bkup.classes[mo.class] = append(bkup.classes[mo.class], &json)
+			client.dns[dn] = &json
+			client.classes[mo.class] = append(client.classes[mo.class], &json)
 		}
 
 		// Add children of this MO to stack
@@ -155,9 +155,9 @@ func (bkup Backup) addToDB(root gjson.Result) {
 	}
 }
 
-// GetClass queries the backup for an MO class.
-func (bkup Backup) GetClass(class string, mods ...func(*Req)) (Res, error) {
-	res, ok := bkup.classes[class]
+// GetClass queries the backup file for an MO class.
+func (client Client) GetClass(class string, mods ...func(*Req)) (Res, error) {
+	res, ok := client.classes[class]
 	if !ok {
 		return Res{}, fmt.Errorf("%s not found", class)
 	}
@@ -165,8 +165,17 @@ func (bkup Backup) GetClass(class string, mods ...func(*Req)) (Res, error) {
 }
 
 // GetDn queries the backup for a specific DN.
-func (bkup Backup) GetDn(dn string, mods ...func(*Req)) (Res, error) {
-	res, ok := bkup.dns[dn]
+// This returns a single object of the format:
+//   { "moClass":
+//       "attributes": {
+//       ...
+//       }
+//   }
+//
+// For unknown class types, retrieve the attributes with a wildcard:
+//   res.Get("*.attributes")
+func (client Client) GetDn(dn string, mods ...func(*Req)) (Res, error) {
+	res, ok := client.dns[dn]
 	if !ok {
 		return Res{}, fmt.Errorf("%s not fund", dn)
 	}
