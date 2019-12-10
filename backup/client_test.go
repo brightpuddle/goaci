@@ -77,6 +77,12 @@ func TestClientGetDn(t *testing.T) {
 		fmt.Println(res.Get("@pretty"))
 	}
 
+	// Valid dn constructed as child of uni
+	res, _ = bkup.GetDn("uni/tn-b")
+	if !assert.Equal(t, "uni/tn-b", res.Get("fvTenant.attributes.dn").Str) {
+		fmt.Println(res.Get("@pretty"))
+	}
+
 	// Invalid dn
 	_, err := bkup.GetDn("uni/non-existent")
 	assert.Error(t, err)
