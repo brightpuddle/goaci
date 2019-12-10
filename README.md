@@ -131,4 +131,4 @@ func main() {
 ```
 
 ## Examples
-See [the examples](https://github.com/brightpuddle/goaci/tree/master/examples).
+See [here](https://github.com/brightpuddle/goaci/tree/master/examples) for various examples.
