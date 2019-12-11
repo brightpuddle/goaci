@@ -62,7 +62,7 @@ func RequestTimeout(x time.Duration) func(*Client) {
 }
 
 // Get makes a GET request and returns a GJSON result.
-func (client Client) Get(path string, mods ...func(*Req)) (Res, error) {
+func (client *Client) Get(path string, mods ...func(*Req)) (Res, error) {
 	req := NewReq("GET", client.url+path, nil, mods...)
 
 	if req.refresh && time.Now().Sub(client.lastRefresh) > 480*time.Second {
@@ -87,7 +87,7 @@ func (client Client) Get(path string, mods ...func(*Req)) (Res, error) {
 }
 
 // GetClass makes a GET request by class and unwraps the results.
-func (client Client) GetClass(class string, mods ...func(*Req)) (Res, error) {
+func (client *Client) GetClass(class string, mods ...func(*Req)) (Res, error) {
 	res, err := client.Get(fmt.Sprintf("/api/class/%s", class), mods...)
 	if err != nil {
 		return res, err
@@ -96,7 +96,7 @@ func (client Client) GetClass(class string, mods ...func(*Req)) (Res, error) {
 }
 
 // GetDn makes a GET request by DN.
-func (client Client) GetDn(dn string, mods ...func(*Req)) (Res, error) {
+func (client *Client) GetDn(dn string, mods ...func(*Req)) (Res, error) {
 	res, err := client.Get(fmt.Sprintf("/api/mo/%s", dn), mods...)
 	if err != nil {
 		return res, err
@@ -105,7 +105,7 @@ func (client Client) GetDn(dn string, mods ...func(*Req)) (Res, error) {
 }
 
 // Post makes a POST request and returns a GJSON result.
-func (client Client) Post(path, data string, mods ...func(*Req)) (Res, error) {
+func (client *Client) Post(path, data string, mods ...func(*Req)) (Res, error) {
 	req := NewReq("POST", client.url+path, strings.NewReader(data), mods...)
 	if req.refresh && time.Now().Sub(client.lastRefresh) > 480*time.Second {
 		if err := client.Refresh(); err != nil {
@@ -129,7 +129,7 @@ func (client Client) Post(path, data string, mods ...func(*Req)) (Res, error) {
 }
 
 // Login authenticates to the Client.
-func (client Client) Login() error {
+func (client *Client) Login() error {
 	data := fmt.Sprintf(`{"aaaUser":{"attributes":{"name":"%s","pwd":"%s"}}}`,
 		client.usr,
 		client.pwd,
@@ -147,7 +147,11 @@ func (client Client) Login() error {
 }
 
 // Refresh refreshes the authentication token.
-func (client Client) Refresh() error {
+func (client *Client) Refresh() error {
 	_, err := client.Get("/api/aaaRefresh", NoRefresh)
-	return err
+	if err != nil {
+		return err
+	}
+	client.lastRefresh = time.Now()
+	return nil
 }
