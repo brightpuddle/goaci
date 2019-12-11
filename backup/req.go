@@ -9,25 +9,26 @@ import (
 // Example:
 //  Body{}.Set("fvTenant.attributes.name", "mytenant").Str
 // Creates:
-//  {
-//   "fvTenant":
-//    "attributes": {
-//     "name": "mytenant"
-//    }
-//  }
+//	{
+//		"fvTenant":
+//			"attributes": {
+//			"name": "mytenant"
+//		}
+//	}
 // These can also be chained:
-//  Body{}.
-//   Set("fvTenant.attributes.name", "mytenant").
-//   Set("fvTenant.attributes.descr", "This is my tenant").
-//   Str
+//	Body{}.
+//		Set("fvTenant.attributes.name", "mytenant").
+//		Set("fvTenant.attributes.descr", "This is my tenant").
+//		Str
 // Creates:
-//  {
-//   "fvTenant":
-//    "attributes": {
-//     "name": "mytenant",
-//     "descr": "This is my tenant"
-//    }
-//  }
+//	{
+//		"fvTenant": {
+//			"attributes": {
+//				"name": "mytenant",
+//				"descr": "This is my tenant"
+//			}
+//		}
+//	}
 type Body struct {
 	Str string
 }
@@ -42,7 +43,7 @@ func (body Body) Set(path, value string) Body {
 
 // SetRaw sets a JSON path to a raw string value.
 // Use this for nesting JSON, e.g.:
-//  Body{}.SetRaw("fvTenant.attributes", Body{}.Set("name", "mytenant").Str).Str
+//	Body{}.SetRaw("fvTenant.attributes", Body{}.Set("name", "mytenant").Str).Str
 func (body Body) SetRaw(path, rawValue string) Body {
 	res, _ := sjson.SetRaw(body.Str, path, rawValue)
 	body.Str = res

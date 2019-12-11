@@ -163,13 +163,13 @@ func (client Client) addToDB(root gjson.Result) {
 
 // GetClass queries the backup file for an MO class.
 // This returns a list of objects, i.e. the contents of imdata:
-//  [
-//   { "moClass":
-//    "attributes": {
-//     ...
-//    }
-//   }
-//  ]
+//	[
+//		{ "moClass":
+//			"attributes": {
+//				...
+//			}
+//		}
+//	]
 func (client Client) GetClass(class string, mods ...func(*Req)) (Res, error) {
 	res, ok := client.Classes[class]
 	if !ok {
@@ -180,14 +180,14 @@ func (client Client) GetClass(class string, mods ...func(*Req)) (Res, error) {
 
 // GetDn queries the backup for a specific DN.
 // This returns a single object of the format:
-//  { "moClass":
-//   "attributes": {
-//    ...
-//   }
-//  }
+//	{ "moClass":
+//		"attributes": {
+//			...
+//		}
+//	}
 //
 // For unknown class types, retrieve the attributes with a wildcard:
-//  res.Get("*.attributes")
+//	res.Get("*.attributes")
 func (client Client) GetDn(dn string, mods ...func(*Req)) (Res, error) {
 	res, ok := client.DNs[dn]
 	if !ok {
