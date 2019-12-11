@@ -32,7 +32,7 @@ type Client struct {
 
 // NewClient creates a new ACI HTTP client.
 // Pass modifiers in to modify the behavior of the client, e.g.
-//   client, _ := NewClient("apic", "user", "password", RequestTimeout(120))
+//  client, _ := NewClient("apic", "user", "password", RequestTimeout(120))
 func NewClient(url, usr, pwd string, mods ...func(*Client)) (Client, error) {
 
 	// Normalize the URL
@@ -73,19 +73,19 @@ func RequestTimeout(x time.Duration) func(*Client) {
 // Get makes a GET request and returns a GJSON result.
 // Results will be the raw data structure as returned by the APIC, wrapped in imdata, e.g.
 //
-//   {
-// 	  "imdata": [
-// 		  {
-// 			  "fvTenant": {
-// 				  "attributes": {
-// 					  "dn": "uni/tn-mytenant",
-// 					  "name": "mytenant",
-// 				  }
-// 			  }
+//  {
+// 	 "imdata": [
+// 	  {
+// 		 "fvTenant": {
+// 		  "attributes": {
+// 			 "dn": "uni/tn-mytenant",
+// 			 "name": "mytenant",
 // 		  }
-// 	  ],
+// 		 }
+// 	  }
+// 	 ],
 // 	  "totalCount": "1"
-//   }
+//  }
 func (client *Client) Get(path string, mods ...func(*Req)) (Res, error) {
 	req := NewReq("GET", client.Url+path, nil, mods...)
 
@@ -112,16 +112,16 @@ func (client *Client) Get(path string, mods ...func(*Req)) (Res, error) {
 
 // GetClass makes a GET request by class and unwraps the results.
 // Result is removed from imdata, but still wrapped in Class.attributes, e.g.
-//	 [
-// 		 {
-// 			 "fvTenant": {
-//				 "attributes": {
-// 					 "dn": "uni/tn-mytenant",
-// 				   "name": "mytenant",
-// 		     }
-// 		   }
-// 	   }
-//   ]
+//  [
+//   {
+// 	   "fvTenant": {
+//	    "attributes": {
+//       "dn": "uni/tn-mytenant",
+//       "name": "mytenant",
+//      }
+//     }
+//    }
+//  ]
 func (client *Client) GetClass(class string, mods ...func(*Req)) (Res, error) {
 	res, err := client.Get(fmt.Sprintf("/api/class/%s", class), mods...)
 	if err != nil {
@@ -132,14 +132,14 @@ func (client *Client) GetClass(class string, mods ...func(*Req)) (Res, error) {
 
 // GetDn makes a GET request by DN.
 // Result is removed from imdata and first result is removed from the list, e.g.
-// 	 {
-// 		 "fvTenant": {
-//			 "attributes": {
-// 				 "dn": "uni/tn-mytenant",
-// 	  	   "name": "mytenant",
-// 	     }
-// 	   }
-// 	 }
+//  {
+//   "fvTenant": {
+//    "attributes": {
+//     "dn": "uni/tn-mytenant",
+//     "name": "mytenant",
+//    }
+//   }
+// 	}
 func (client *Client) GetDn(dn string, mods ...func(*Req)) (Res, error) {
 	res, err := client.Get(fmt.Sprintf("/api/mo/%s", dn), mods...)
 	if err != nil {
