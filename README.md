@@ -130,5 +130,7 @@ func main() {
 }
 ```
 
-## Examples
+## Documenatation and examples
 See [here](https://github.com/brightpuddle/goaci/tree/master/examples) for various examples.
+
+And, the [documentation](https://godoc.org/github.com/brightpuddle/goaci) for more details.
