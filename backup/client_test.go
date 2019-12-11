@@ -23,13 +23,13 @@ func TestFmtRN(t *testing.T) {
 	record := gjson.Parse("{}")
 	assert.Equal(t, "simple", fmtRn("simple", record))
 
-	record = Body{}.Set("key2", "two").gjson()
+	record = Body{}.Set("key2", "two").Res()
 	assert.Equal(t, "one-two", fmtRn("one-{key2}", record))
 
-	record = Body{}.Set("key2", "two").gjson()
+	record = Body{}.Set("key2", "two").Res()
 	assert.Equal(t, "one-[two]", fmtRn("one-{[key2]}", record))
 
-	record = Body{}.Set("key2", "two").Set("key3", "three").gjson()
+	record = Body{}.Set("key2", "two").Set("key3", "three").Res()
 	assert.Equal(t, "one-two-three", fmtRn("one-{key2}-{key3}", record))
 }
 
@@ -38,11 +38,11 @@ func TestBuildDN(t *testing.T) {
 	uniPath := []string{"uni"}
 
 	// Record has existing DN so just return that
-	path, _ := buildDn(Body{}.Set("dn", "uni/a/b").gjson(), uniPath, "fvTenant")
+	path, _ := buildDn(Body{}.Set("dn", "uni/a/b").Res(), uniPath, "fvTenant")
 	assert.ElementsMatch(t, path, []string{"uni", "a", "b"})
 
 	// Simple key
-	path, _ = buildDn(Body{}.Set("name", "a").gjson(), uniPath, "fvTenant")
+	path, _ = buildDn(Body{}.Set("name", "a").Res(), uniPath, "fvTenant")
 	assert.ElementsMatch(t, path, []string{"uni", "tn-a"})
 
 	// Missing key

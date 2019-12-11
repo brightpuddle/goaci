@@ -13,9 +13,12 @@ import (
 )
 
 // Client is a ACI backup file client.
+// Inititate with backup.NewClient
 type Client struct {
-	dns     map[string]*Res
-	classes map[string][]*Res
+	// DNs is the DN to object mapping index.
+	DNs map[string]*Res
+	// Classes is the class to object(s) mapping index.
+	Classes map[string][]*Res
 }
 
 func fmtRn(template string, record gjson.Result) (rn string) {
@@ -88,8 +91,8 @@ func NewClient(src string) (Client, error) {
 
 	// Initialize client
 	client := Client{
-		dns:     make(map[string]*Res),
-		classes: make(map[string][]*Res),
+		DNs:     make(map[string]*Res),
+		Classes: make(map[string][]*Res),
 	}
 
 	// Untar backup tar file
@@ -145,10 +148,10 @@ func (client Client) addToDB(root gjson.Result) {
 			json := Body{}.
 				SetRaw(mo.class+".attributes", moBody.Get("attributes").Raw). // Remove children
 				Set(mo.class+".attributes.dn", dn).                           // Fix the DN
-				gjson()
+				Res()
 
-			client.dns[dn] = &json
-			client.classes[mo.class] = append(client.classes[mo.class], &json)
+			client.DNs[dn] = &json
+			client.Classes[mo.class] = append(client.Classes[mo.class], &json)
 		}
 
 		// Add children of this MO to stack
@@ -159,8 +162,16 @@ func (client Client) addToDB(root gjson.Result) {
 }
 
 // GetClass queries the backup file for an MO class.
+// This returns a list of objects, i.e. the contents of imdata:
+//   [
+//     { "moClass":
+//       "attributes": {
+//         ...
+//       }
+//     }
+//   ]
 func (client Client) GetClass(class string, mods ...func(*Req)) (Res, error) {
-	res, ok := client.classes[class]
+	res, ok := client.Classes[class]
 	if !ok {
 		return Res{}, fmt.Errorf("%s not found", class)
 	}
@@ -171,14 +182,14 @@ func (client Client) GetClass(class string, mods ...func(*Req)) (Res, error) {
 // This returns a single object of the format:
 //   { "moClass":
 //       "attributes": {
-//       ...
+//         ...
 //       }
 //   }
 //
 // For unknown class types, retrieve the attributes with a wildcard:
 //   res.Get("*.attributes")
 func (client Client) GetDn(dn string, mods ...func(*Req)) (Res, error) {
-	res, ok := client.dns[dn]
+	res, ok := client.DNs[dn]
 	if !ok {
 		return Res{}, fmt.Errorf("%s not fund", dn)
 	}

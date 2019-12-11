@@ -19,8 +19,8 @@ const (
 
 func testClient() Client {
 	client, _ := NewClient(testHost, "usr", "pwd")
-	client.lastRefresh = time.Now()
-	gock.InterceptClient(client.httpClient)
+	client.LastRefresh = time.Now()
+	gock.InterceptClient(client.HttpClient)
 	return client
 }
 
@@ -35,7 +35,7 @@ func (r ErrReader) Read(buf []byte) (int, error) {
 // TestNewClient tests the NewClient function.
 func TestNewClient(t *testing.T) {
 	client, _ := NewClient(testURL, "usr", "pwd", RequestTimeout(120))
-	assert.Equal(t, client.httpClient.Timeout, 120*time.Second)
+	assert.Equal(t, client.HttpClient.Timeout, 120*time.Second)
 }
 
 // TestClientLogin tests the Client::Login method.
@@ -101,7 +101,7 @@ func TestClientGet(t *testing.T) {
 	assert.Error(t, err)
 
 	// Force token refresh and throw an error
-	client.lastRefresh = time.Now().AddDate(0, 0, -1)
+	client.LastRefresh = time.Now().AddDate(0, 0, -1)
 	gock.New(testURL).
 		Get("/api/aaaRefresh.json").
 		ReplyError(errors.New("fail"))
@@ -193,7 +193,7 @@ func TestClientPost(t *testing.T) {
 	assert.Error(t, err)
 
 	// Force token refresh and throw an error
-	client.lastRefresh = time.Now().AddDate(0, 0, -1)
+	client.LastRefresh = time.Now().AddDate(0, 0, -1)
 	gock.New(testURL).Get("/api/aaaRefresh.json").ReplyError(errors.New("fail"))
 	_, err = client.Post("/url", "{}")
 	assert.Error(t, err)

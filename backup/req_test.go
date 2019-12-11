@@ -8,6 +8,6 @@ import (
 
 // TestSetRaw tests the Body::SetRaw method.
 func TestSetRaw(t *testing.T) {
-	name := Body{}.SetRaw("a", `{"name":"a"}`).gjson().Get("a.name").Str
+	name := Body{}.SetRaw("a", `{"name":"a"}`).Res().Get("a.name").Str
 	assert.Equal(t, "a", name)
 }
