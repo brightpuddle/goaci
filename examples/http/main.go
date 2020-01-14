@@ -25,6 +25,13 @@ func main() {
 	fmt.Println(name)
 	// infra
 
+	// Request built prior to making request
+	req := goaci.NewReq("GET", "/api/mo/uni/tn-infra", nil)
+	res, _ = client.Do(req)
+	name = res.Get("imdata.0.*.attributes.name")
+	fmt.Println(name)
+	// infra
+
 	// Get an MO by DN
 	res, _ = client.GetDn("uni/tn-infra")
 	tenantRecord := res.Get("*.attributes|@pretty")

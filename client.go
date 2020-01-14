@@ -70,25 +70,12 @@ func RequestTimeout(x time.Duration) func(*Client) {
 	}
 }
 
-// Get makes a GET request and returns a GJSON result.
-// Results will be the raw data structure as returned by the APIC, wrapped in imdata, e.g.
+// Do makes a request.
+// Requests for Do are built ouside of the client, e.g.
 //
-//  {
-//    "imdata": [
-//      {
-//        "fvTenant": {
-//          "attributes": {
-//            "dn": "uni/tn-mytenant",
-//            "name": "mytenant",
-//          }
-//        }
-//      }
-//    ],
-//    "totalCount": "1"
-//  }
-func (client *Client) Get(path string, mods ...func(*Req)) (Res, error) {
-	req := NewReq("GET", client.Url+path, nil, mods...)
-
+//  req := goaci.NewReq("GET", "/api/class/fvBD", nil)
+//  res := client.Do(req)
+func (client *Client) Do(req Req) (Res, error) {
 	if req.Refresh && time.Now().Sub(client.LastRefresh) > 480*time.Second {
 		if err := client.Refresh(); err != nil {
 			return Res{}, err
@@ -108,6 +95,27 @@ func (client *Client) Get(path string, mods ...func(*Req)) (Res, error) {
 		return Res{}, errors.New("cannot decode response body")
 	}
 	return Res(gjson.ParseBytes(body)), nil
+}
+
+// Get makes a GET request and returns a GJSON result.
+// Results will be the raw data structure as returned by the APIC, wrapped in imdata, e.g.
+//
+//  {
+//    "imdata": [
+//      {
+//        "fvTenant": {
+//          "attributes": {
+//            "dn": "uni/tn-mytenant",
+//            "name": "mytenant",
+//          }
+//        }
+//      }
+//    ],
+//    "totalCount": "1"
+//  }
+func (client *Client) Get(path string, mods ...func(*Req)) (Res, error) {
+	req := NewReq("GET", client.Url+path, nil, mods...)
+	return client.Do(req)
 }
 
 // GetClass makes a GET request by class and unwraps the results.
@@ -152,25 +160,7 @@ func (client *Client) GetDn(dn string, mods ...func(*Req)) (Res, error) {
 // Hint: Use the Body struct to easily create POST body data.
 func (client *Client) Post(path, data string, mods ...func(*Req)) (Res, error) {
 	req := NewReq("POST", client.Url+path, strings.NewReader(data), mods...)
-	if req.Refresh && time.Now().Sub(client.LastRefresh) > 480*time.Second {
-		if err := client.Refresh(); err != nil {
-			return Res{}, err
-		}
-	}
-
-	httpRes, err := client.HttpClient.Do(req.HttpReq)
-	if err != nil {
-		return Res{}, err
-	}
-	defer httpRes.Body.Close()
-	if httpRes.StatusCode != http.StatusOK {
-		return Res{}, fmt.Errorf("HTTP response: %s", httpRes.Status)
-	}
-	body, err := ioutil.ReadAll(httpRes.Body)
-	if err != nil {
-		return Res{}, err
-	}
-	return Res(gjson.ParseBytes(body)), nil
+	return client.Do(req)
 }
 
 // Login authenticates to the APIC.
