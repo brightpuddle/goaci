@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -63,6 +64,19 @@ func NewClient(url, usr, pwd string, mods ...func(*Client)) (Client, error) {
 	return client, nil
 }
 
+// NewReq creates a new Req request for this client.
+func (client Client) NewReq(method, uri string, body io.Reader, mods ...func(*Req)) Req {
+	httpReq, _ := http.NewRequest(method, client.Url+uri+".json", body)
+	req := Req{
+		HttpReq: httpReq,
+		Refresh: true,
+	}
+	for _, mod := range mods {
+		mod(&req)
+	}
+	return req
+}
+
 // RequestTimeout modifies the HTTP request timeout from the default of 60 seconds.
 func RequestTimeout(x time.Duration) func(*Client) {
 	return func(client *Client) {
@@ -73,7 +87,7 @@ func RequestTimeout(x time.Duration) func(*Client) {
 // Do makes a request.
 // Requests for Do are built ouside of the client, e.g.
 //
-//  req := goaci.NewReq("GET", "/api/class/fvBD", nil)
+//  req := client.NewReq("GET", "/api/class/fvBD", nil)
 //  res := client.Do(req)
 func (client *Client) Do(req Req) (Res, error) {
 	if req.Refresh && time.Now().Sub(client.LastRefresh) > 480*time.Second {
@@ -114,7 +128,7 @@ func (client *Client) Do(req Req) (Res, error) {
 //    "totalCount": "1"
 //  }
 func (client *Client) Get(path string, mods ...func(*Req)) (Res, error) {
-	req := NewReq("GET", client.Url+path, nil, mods...)
+	req := client.NewReq("GET", path, nil, mods...)
 	return client.Do(req)
 }
 
@@ -159,7 +173,7 @@ func (client *Client) GetDn(dn string, mods ...func(*Req)) (Res, error) {
 // Post makes a POST request and returns a GJSON result.
 // Hint: Use the Body struct to easily create POST body data.
 func (client *Client) Post(path, data string, mods ...func(*Req)) (Res, error) {
-	req := NewReq("POST", client.Url+path, strings.NewReader(data), mods...)
+	req := client.NewReq("POST", path, strings.NewReader(data), mods...)
 	return client.Do(req)
 }
 

@@ -1,8 +1,6 @@
 package goaci
 
 import (
-	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/tidwall/gjson"
@@ -44,19 +42,6 @@ type Req struct {
 	// Refresh indicates whether token refresh should be checked for this request.
 	// Pass NoRefresh to disable Refresh check.
 	Refresh bool
-}
-
-// NewReq creates a new Req request.
-func NewReq(method, uri string, body io.Reader, mods ...func(*Req)) Req {
-	httpReq, _ := http.NewRequest(method, fmt.Sprintf("%s.json", uri), body)
-	req := Req{
-		HttpReq: httpReq,
-		Refresh: true,
-	}
-	for _, mod := range mods {
-		mod(&req)
-	}
-	return req
 }
 
 // NoRefresh prevents token refresh check.

@@ -26,7 +26,7 @@ func main() {
 	// infra
 
 	// Request built prior to making request
-	req := goaci.NewReq("GET", "/api/mo/uni/tn-infra", nil)
+	req := client.NewReq("GET", "/api/mo/uni/tn-infra", nil)
 	res, _ = client.Do(req)
 	name = res.Get("imdata.0.*.attributes.name")
 	fmt.Println(name)
