@@ -21,4 +21,9 @@ func TestQuery(t *testing.T) {
 	gock.New(testURL).Get("/url").MatchParam("foo", "bar").Reply(200)
 	_, err := client.Get("/url", Query("foo", "bar"))
 	assert.NoError(t, err)
+
+	// Test case for comma-separated parameters
+	gock.New(testURL).Get("/url").MatchParam("foo", "bar,baz").Reply(200)
+	_, err = client.Get("/url", Query("foo", "bar,baz"))
+	assert.NoError(t, err)
 }
