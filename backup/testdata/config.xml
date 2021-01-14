@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<polUni dn="uni" name="root">
+  <fvTenant dn="uni/tn-a" name="a"></fvTenant>
+  <fvTenant name="b"></fvTenant>
+</polUni>

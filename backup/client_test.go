@@ -10,7 +10,7 @@ import (
 
 // Memoize backup client to only read the testdata once.
 func newTestClient() func() (Client, error) {
-	bkup, err := NewClient("./testdata/config.tar.gz")
+	bkup, err := NewClient("./testdata/json_config.tar.gz")
 	return func() (Client, error) {
 		return bkup, err
 	}
@@ -60,11 +60,6 @@ func TestNewClient(t *testing.T) {
 	// Not a gzip file
 	_, err = NewClient("./testdata/config.json")
 	assert.Error(t, err)
-
-	// Valid gzip; invalid tar
-	_, err = NewClient("./testdata/valid.gz.invalid.tar")
-	assert.Error(t, err)
-
 }
 
 // TestClientGetDn tests the Client::GetDn method.

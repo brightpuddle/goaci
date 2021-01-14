@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<topRoot childAction="" dn="" status="">
+  <configShardLocator childAction="" dn="" lcOwn="local" modTs="never" shard="15" status=""/>
+  <resCont childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-03-06T08:03:21.963+00:00" status=""/>
+  <identCont childAction="deleteNonPresent" dn="" isUniSyncDone="no" lcOwn="local" modTs="2018-03-06T08:03:21.945+00:00" status=""/>
+</topRoot>

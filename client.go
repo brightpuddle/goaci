@@ -29,6 +29,8 @@ type Client struct {
 	Pwd string
 	// LastRefresh is the timestamp of the last token refresh interval.
 	LastRefresh time.Time
+	// Token is the current authentication token
+	Token string
 }
 
 // NewClient creates a new ACI HTTP client.
@@ -187,10 +189,11 @@ func (client *Client) Login() error {
 	if err != nil {
 		return err
 	}
-	errText := res.Get("imdata|0|error|attributes|text").Str
+	errText := res.Get("imdata.0.error.attributes.text").Str
 	if errText != "" {
 		return errors.New("authentication error")
 	}
+	client.Token = res.Get("imdata.0.aaaLogin.attributes.token").Str
 	client.LastRefresh = time.Now()
 	return nil
 }
@@ -200,10 +203,11 @@ func (client *Client) Login() error {
 // Refresh will be checked every request and the token will be refreshed after 8 minutes.
 // Pass goaci.NoRefresh to prevent automatic refresh handling and handle it directly instead.
 func (client *Client) Refresh() error {
-	_, err := client.Get("/api/aaaRefresh", NoRefresh)
+	res, err := client.Get("/api/aaaRefresh", NoRefresh)
 	if err != nil {
 		return err
 	}
+	client.Token = res.Get("imdata.0.aaaRefresh.attributes.token").Str
 	client.LastRefresh = time.Now()
 	return nil
 }

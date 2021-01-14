@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<topRoot childAction="" dn="" status="">
+  <configShardLocator childAction="" dn="" lcOwn="local" modTs="never" shard="32" status=""/>
+  <resCont childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-03-06T08:03:21.954+00:00" status="">
+    <resSubj childAction="deleteNonPresent" ctxCount="0" dn="" lcOwn="local" modTs="2018-04-03T12:25:25.991+00:00" name="" nameAlias="" oCl="fabricLagId" oDn="uni/fabric/protpol/expgep-vpc-explictGrp1101102/lagid-default-B12UATNETAPP01B_VPC1:polGrp" operSt="registered" status="">
+      <identConsumer allocSt="success" childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-04-03T12:01:36.970+00:00" mode="local" ns="vpc-explictGrp1101102" profile="small" req="1" rsp="1" status="" subj="LagID">
+        <identSource childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-04-03T12:01:36.970+00:00" shard="20" status="">
+          <identInst16 childAction="deleteNonPresent" dn="" elementDn="idm/runi-LagID-vpc-explictGrp1101102/id16-684" id="684" lcOwn="local" modTs="2018-04-03T12:01:36.970+00:00" status=""/>
+        </identSource>
+      </identConsumer>
+    </resSubj>
+    <resSubj childAction="deleteNonPresent" ctxCount="0" dn="" lcOwn="local" modTs="2018-04-03T12:24:48.162+00:00" name="" nameAlias="" oCl="fabricLagId" oDn="uni/fabric/protpol/expgep-vpc-explictGrp1101102/lagid-default-B12UATNETAPP01A_VPC1:polGrp" operSt="registered" status="">
+      <identConsumer allocSt="success" childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-04-03T12:01:37.033+00:00" mode="local" ns="vpc-explictGrp1101102" profile="small" req="1" rsp="1" status="" subj="LagID">
+        <identSource childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-04-03T12:01:37.033+00:00" shard="18" status="">
+          <identInst16 childAction="deleteNonPresent" dn="" elementDn="idm/runi-LagID-vpc-explictGrp1101102/id16-1" id="1" lcOwn="local" modTs="2018-04-03T12:01:37.033+00:00" status=""/>
+        </identSource>
+      </identConsumer>
+    </resSubj>
+    <resSubj childAction="deleteNonPresent" ctxCount="0" dn="" lcOwn="local" modTs="2018-11-20T13:00:59.002+00:00" name="" nameAlias="" oCl="fabricLagId" oDn="uni/fabric/protpol/expgep-vpc-explictGrp1103104/lagid-default-B12UATNETAPP01D_VPC1:polGrp" operSt="registered" status="">
+      <identConsumer allocSt="success" childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-11-20T13:00:59.076+00:00" mode="local" ns="vpc-explictGrp1103104" profile="small" req="1" rsp="1" status="" subj="LagID">
+        <identSource childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-11-20T13:00:59.076+00:00" shard="24" status="">
+          <identInst16 childAction="deleteNonPresent" dn="" elementDn="idm/runi-LagID-vpc-explictGrp1103104/id16-343" id="343" lcOwn="local" modTs="2018-11-20T13:00:59.076+00:00" status=""/>
+        </identSource>
+      </identConsumer>
+    </resSubj>
+    <resSubj childAction="deleteNonPresent" ctxCount="0" dn="" lcOwn="local" modTs="2018-11-20T13:00:51.969+00:00" name="" nameAlias="" oCl="fabricLagId" oDn="uni/fabric/protpol/expgep-vpc-explictGrp1103104/lagid-default-B12UATNETAPP01C_VPC1:polGrp" operSt="registered" status="">
+      <identConsumer allocSt="success" childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-11-20T13:00:52.095+00:00" mode="local" ns="vpc-explictGrp1103104" profile="small" req="1" rsp="1" status="" subj="LagID">
+        <identSource childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-11-20T13:00:52.095+00:00" shard="25" status="">
+          <identInst16 childAction="deleteNonPresent" dn="" elementDn="idm/runi-LagID-vpc-explictGrp1103104/id16-684" id="684" lcOwn="local" modTs="2018-11-20T13:00:52.095+00:00" status=""/>
+        </identSource>
+      </identConsumer>
+    </resSubj>
+    <resSubj childAction="deleteNonPresent" ctxCount="0" dn="" lcOwn="local" modTs="2018-04-03T12:31:39.956+00:00" name="" nameAlias="" oCl="fabricLagId" oDn="uni/fabric/protpol/expgep-vpc-explictGrp1103104/lagid-default-B12-UAT-FI-A:polGrp" operSt="registered" status="">
+      <identConsumer allocSt="success" childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-04-03T12:31:39.991+00:00" mode="local" ns="vpc-explictGrp1103104" profile="small" req="1" rsp="1" status="" subj="LagID">
+        <identSource childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-04-03T12:31:39.991+00:00" shard="23" status="">
+          <identInst16 childAction="deleteNonPresent" dn="" elementDn="idm/runi-LagID-vpc-explictGrp1103104/id16-1" id="1" lcOwn="local" modTs="2018-04-03T12:31:39.991+00:00" status=""/>
+        </identSource>
+      </identConsumer>
+    </resSubj>
+    <resSubj childAction="deleteNonPresent" ctxCount="0" dn="" lcOwn="local" modTs="2018-04-03T12:31:39.956+00:00" name="" nameAlias="" oCl="fabricLagId" oDn="uni/fabric/protpol/expgep-vpc-explictGrp1103104/lagid-default-B12-UAT-FI-B:polGrp" operSt="registered" status="">
+      <identConsumer allocSt="success" childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-04-03T12:31:39.995+00:00" mode="local" ns="vpc-explictGrp1103104" profile="small" req="1" rsp="1" status="" subj="LagID">
+        <identSource childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-04-03T12:31:39.995+00:00" shard="23" status="">
+          <identInst16 childAction="deleteNonPresent" dn="" elementDn="idm/runi-LagID-vpc-explictGrp1103104/id16-2" id="2" lcOwn="local" modTs="2018-04-03T12:31:39.995+00:00" status=""/>
+        </identSource>
+      </identConsumer>
+    </resSubj>
+    <resSubj childAction="deleteNonPresent" ctxCount="0" dn="" lcOwn="local" modTs="2019-08-28T08:48:30.233+00:00" name="" nameAlias="" oCl="fabricLagId" oDn="uni/fabric/protpol/expgep-vpc-explictGrp1103104/lagid-default-B12UATNETAPP01e_vpc_polgrp" operSt="registered" status="">
+      <identConsumer allocSt="success" childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2019-08-28T08:48:30.315+00:00" mode="local" ns="vpc-explictGrp1103104" profile="small" req="1" rsp="1" status="" subj="LagID">
+        <identSource childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2019-08-28T08:48:30.315+00:00" shard="23" status="">
+          <identInst16 childAction="deleteNonPresent" dn="" elementDn="idm/runi-LagID-vpc-explictGrp1103104/id16-3" id="3" lcOwn="local" modTs="2019-08-28T08:48:30.315+00:00" status=""/>
+        </identSource>
+      </identConsumer>
+    </resSubj>
+    <resSubj childAction="deleteNonPresent" ctxCount="0" dn="" lcOwn="local" modTs="2019-08-28T08:51:53.819+00:00" name="" nameAlias="" oCl="fabricLagId" oDn="uni/fabric/protpol/expgep-vpc-explictGrp1103104/lagid-default-B12UATNETAPP01f_vpc_polGrp" operSt="registered" status="">
+      <identConsumer allocSt="success" childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2019-08-28T08:51:53.898+00:00" mode="local" ns="vpc-explictGrp1103104" profile="small" req="1" rsp="1" status="" subj="LagID">
+        <identSource childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2019-08-28T08:51:53.898+00:00" shard="24" status="">
+          <identInst16 childAction="deleteNonPresent" dn="" elementDn="idm/runi-LagID-vpc-explictGrp1103104/id16-344" id="344" lcOwn="local" modTs="2019-08-28T08:51:53.898+00:00" status=""/>
+        </identSource>
+      </identConsumer>
+    </resSubj>
+  </resCont>
+  <identCont childAction="deleteNonPresent" dn="" isUniSyncDone="yes" lcOwn="local" modTs="2018-12-21T01:42:31.024+00:00" status="">
+    <identSubj childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-03-06T08:03:23.045+00:00" name="LagID" nameAlias="" oDn="uni/fabric/protpol" profile="small" status="">
+      <identNs childAction="deleteNonPresent" descr="" dn="" lcOwn="local" modTs="2018-04-03T12:31:39.924+00:00" name="vpc-explictGrp1103104" nameAlias="" oDn="" ownerKey="" ownerTag="" status="" usageStatus="green">
+        <identBlock16 childAction="deleteNonPresent" descr="" dn="" from="1" lcOwn="local" modTs="2018-04-03T12:31:39.924+00:00" name="" nameAlias="" size="1024" status="" to="1024" type="include" usageStatus="green">
+          <identSegment16 allocSize="0" childAction="deleteNonPresent" dn="" from="1" id="1" instSize="0" lastAssigned="0" lcOwn="local" modTs="2018-04-03T12:31:39.924+00:00" operSt="uninitialized" profile="small" size="342" status="" to="342" usageStatus="green"/>
+          <identSegment16 allocSize="0" childAction="deleteNonPresent" dn="" from="684" id="3" instSize="0" lastAssigned="0" lcOwn="local" modTs="2018-04-03T12:31:39.924+00:00" operSt="uninitialized" profile="small" size="341" status="" to="1024" usageStatus="green"/>
+          <identSegment16 allocSize="0" childAction="deleteNonPresent" dn="" from="343" id="2" instSize="0" lastAssigned="0" lcOwn="local" modTs="2018-04-03T12:31:39.924+00:00" operSt="uninitialized" profile="small" size="341" status="" to="683" usageStatus="green"/>
+        </identBlock16>
+      </identNs>
+      <identNs childAction="deleteNonPresent" descr="" dn="" lcOwn="local" modTs="2018-04-03T12:01:36.918+00:00" name="vpc-explictGrp1101102" nameAlias="" oDn="" ownerKey="" ownerTag="" status="" usageStatus="green">
+        <identBlock16 childAction="deleteNonPresent" descr="" dn="" from="1" lcOwn="local" modTs="2018-04-03T12:01:36.918+00:00" name="" nameAlias="" size="1024" status="" to="1024" type="include" usageStatus="green">
+          <identSegment16 allocSize="0" childAction="deleteNonPresent" dn="" from="1" id="1" instSize="0" lastAssigned="0" lcOwn="local" modTs="2018-04-03T12:01:36.918+00:00" operSt="uninitialized" profile="small" size="342" status="" to="342" usageStatus="green"/>
+          <identSegment16 allocSize="0" childAction="deleteNonPresent" dn="" from="684" id="3" instSize="0" lastAssigned="0" lcOwn="local" modTs="2018-04-03T12:01:36.918+00:00" operSt="uninitialized" profile="small" size="341" status="" to="1024" usageStatus="green"/>
+          <identSegment16 allocSize="0" childAction="deleteNonPresent" dn="" from="343" id="2" instSize="0" lastAssigned="0" lcOwn="local" modTs="2018-04-03T12:01:36.918+00:00" operSt="uninitialized" profile="small" size="341" status="" to="683" usageStatus="green"/>
+        </identBlock16>
+      </identNs>
+    </identSubj>
+    <identSubj childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-03-06T08:03:23.045+00:00" name="VPCPairID" nameAlias="" oDn="uni/fabric/protpol" profile="small" status="">
+      <identNs childAction="deleteNonPresent" descr="" dn="" lcOwn="local" modTs="2018-03-06T08:03:23.045+00:00" name="VPCPairID" nameAlias="" oDn="" ownerKey="" ownerTag="" status="" usageStatus="green">
+        <identBlock16 childAction="deleteNonPresent" descr="" dn="" from="1" lcOwn="local" modTs="2018-03-06T08:03:23.045+00:00" name="" nameAlias="" size="1000" status="" to="1000" type="include" usageStatus="green">
+          <identSegment16 allocSize="0" childAction="deleteNonPresent" dn="" from="1" id="1" instSize="0" lastAssigned="0" lcOwn="local" modTs="2018-03-06T08:03:23.045+00:00" operSt="uninitialized" profile="small" size="334" status="" to="334" usageStatus="green"/>
+          <identSegment16 allocSize="0" childAction="deleteNonPresent" dn="" from="668" id="3" instSize="0" lastAssigned="0" lcOwn="local" modTs="2018-03-06T08:03:23.045+00:00" operSt="uninitialized" profile="small" size="333" status="" to="1000" usageStatus="green"/>
+          <identSegment16 allocSize="0" childAction="deleteNonPresent" dn="" from="335" id="2" instSize="0" lastAssigned="0" lcOwn="local" modTs="2018-03-06T08:03:23.045+00:00" operSt="uninitialized" profile="small" size="333" status="" to="667" usageStatus="green"/>
+        </identBlock16>
+      </identNs>
+    </identSubj>
+  </identCont>
+</topRoot>

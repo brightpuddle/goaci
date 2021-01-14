@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<topRoot childAction="" dn="" status="">
+  <configShardLocator childAction="" dn="" lcOwn="local" modTs="never" shard="7" status=""/>
+  <resCont childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-03-06T08:03:22.024+00:00" status=""/>
+  <identCont childAction="deleteNonPresent" dn="" isUniSyncDone="no" lcOwn="local" modTs="2018-03-06T08:03:22.152+00:00" status="">
+    <identSubj childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2020-03-02T07:55:40.424+00:00" name="class" nameAlias="" oDn="uni/tn-automation/ctx-automation_vrf" profile="small" status=""/>
+  </identCont>
+</topRoot>

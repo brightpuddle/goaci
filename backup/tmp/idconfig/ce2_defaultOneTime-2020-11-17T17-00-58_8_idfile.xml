@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<topRoot childAction="" dn="" status="">
+  <configShardLocator childAction="" dn="" lcOwn="local" modTs="never" shard="8" status=""/>
+  <resCont childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2018-03-06T08:03:22.004+00:00" status="">
+    <resSubj childAction="deleteNonPresent" ctxCount="0" dn="" lcOwn="local" modTs="2020-10-17T15:46:11.038+00:00" name="" nameAlias="" oCl="fvCtx" oDn="uni/tn-Anthos-POC/ctx-default" operSt="registered" status="">
+      <identConsumer allocSt="success" childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2020-10-17T15:46:11.201+00:00" mode="local" ns="ctx" profile="large" req="1" rsp="1" status="" subj="seg">
+        <identSource childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2020-10-17T15:46:11.201+00:00" shard="11" status="">
+          <identInst32 childAction="deleteNonPresent" dn="" elementDn="idm/suni-seg-ctx/id32-2392067" id="2392067" lcOwn="local" modTs="2020-10-17T15:46:11.201+00:00" status=""/>
+        </identSource>
+      </identConsumer>
+      <identConsumer allocSt="success" childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2020-10-17T15:46:11.354+00:00" mode="local" ns="2392067" profile="small" req="1" rsp="1" status="" subj="class">
+        <identSource childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2020-10-17T15:46:11.354+00:00" shard="25" status="">
+          <identInst16 childAction="deleteNonPresent" dn="" elementDn="idm/runi-class-2392067/id16-32770" id="32770" lcOwn="local" modTs="2020-10-17T15:46:11.354+00:00" status=""/>
+        </identSource>
+      </identConsumer>
+    </resSubj>
+  </resCont>
+  <identCont childAction="deleteNonPresent" dn="" isUniSyncDone="no" lcOwn="local" modTs="2018-03-06T08:03:21.953+00:00" status="">
+    <identSubj childAction="deleteNonPresent" dn="" lcOwn="local" modTs="2020-10-17T15:46:11.201+00:00" name="class" nameAlias="" oDn="uni/tn-Anthos-POC/ctx-default" profile="small" status="">
+      <identNs childAction="deleteNonPresent" descr="" dn="" lcOwn="local" modTs="2020-10-17T15:46:11.201+00:00" name="2392067" nameAlias="" oDn="" ownerKey="" ownerTag="" status="" usageStatus="green">
+        <identBlock16 childAction="deleteNonPresent" descr="" dn="" from="16386" lcOwn="local" modTs="2020-10-17T15:46:11.201+00:00" name="" nameAlias="" size="49150" status="" to="65535" type="include" usageStatus="green">
+          <identSegment16 allocSize="0" childAction="deleteNonPresent" dn="" from="49153" id="3" instSize="0" lastAssigned="0" lcOwn="local" modTs="2020-10-17T15:46:11.201+00:00" operSt="uninitialized" profile="small" size="16383" status="" to="65535" usageStatus="green"/>
+          <identSegment16 allocSize="0" childAction="deleteNonPresent" dn="" from="16386" id="1" instSize="0" lastAssigned="0" lcOwn="local" modTs="2020-10-17T15:46:11.201+00:00" operSt="uninitialized" profile="small" size="16384" status="" to="32769" usageStatus="green"/>
+          <identSegment16 allocSize="0" childAction="deleteNonPresent" dn="" from="32770" id="2" instSize="0" lastAssigned="0" lcOwn="local" modTs="2020-10-17T15:46:11.201+00:00" operSt="uninitialized" profile="small" size="16383" status="" to="49152" usageStatus="green"/>
+        </identBlock16>
+      </identNs>
+    </identSubj>
+  </identCont>
+</topRoot>
